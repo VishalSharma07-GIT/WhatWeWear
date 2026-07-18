@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "315311271901",
+    "project_id": "whatwewear-297ec",
+    "storage_bucket": "whatwewear-297ec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315311271901:android:5770d67258553d71b99034",
+        "android_client_info": {
+          "package_name": "com.vishalsharma.whatwewear"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "315311271901-vf92ng0mb4cjg75t2pcugmaihiahdieh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vishalsharma.whatwewear",
+            "certificate_hash": "ba837a3ab90ca139bcf43e6fd6b834ef295bd2c5"
+          }
+        },
+        {
+          "client_id": "315311271901-l2grqgsnjcea9ug9u80nlcsj72llpdav.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4IOSt9G4DyTBZWfgBMxTCfYdQeZwJ3d0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "315311271901-l2grqgsnjcea9ug9u80nlcsj72llpdav.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

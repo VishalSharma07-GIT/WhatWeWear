@@ -1,0 +1,9 @@
+<resources>
+
+    <string name="app_name">WhatWeWear</string>
+
+    <string name="default_web_client_id">
+        315311271901-l2grqgsnjcea9ug9u80nlcsj72llpdav.apps.googleusercontent.com
+    </string>
+
+</resources>
