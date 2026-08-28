@@ -29,7 +29,9 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             totalTops = 18,
             totalBottoms = 12,
             totalShoes = 10,
-            favoriteCount = 9
+            favoriteCount = 9,
+            currentLookIndex = 0,
+            currentLookTitle = "Casual Weekend"
         )
     }
     private fun getGreeting(): String {
@@ -38,6 +40,23 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             in 12..16 -> "Good Afternoon"
             in 17..20 -> "Good Evening"
             else -> "Good Night"
+        }
+    }
+
+    fun selectLook(index: Int) {
+
+        val looks = listOf(
+            "Casual Weekend",
+            "Smart Casual",
+            "Evening Style"
+        )
+
+        if (index in looks.indices) {
+
+            _uiState.value = _uiState.value.copy(
+                currentLookIndex = index,
+                currentLookTitle = looks[index]
+            )
         }
     }
 }

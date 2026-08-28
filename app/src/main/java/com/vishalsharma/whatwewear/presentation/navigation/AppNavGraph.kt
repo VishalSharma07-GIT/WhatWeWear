@@ -8,8 +8,10 @@ import com.vishalsharma.whatwewear.presentation.auth.LoginScreen
 import com.vishalsharma.whatwewear.presentation.forgotpassword.ForgotPasswordScreen
 import com.vishalsharma.whatwewear.presentation.home.HomeScreen
 import com.vishalsharma.whatwewear.presentation.onboarding.OnboardingScreen
+import com.vishalsharma.whatwewear.presentation.profile.ProfileScreen
 import com.vishalsharma.whatwewear.presentation.signup.SignupScreen
 import com.vishalsharma.whatwewear.presentation.splash.SplashScreen
+import com.vishalsharma.whatwewear.presentation.wardrobe.WardrobeScreen
 
 @Composable
 fun AppNavGraph() {
@@ -95,10 +97,33 @@ fun AppNavGraph() {
         }
         composable(NavRoutes.Home) {
 
-            HomeScreen()
+            MainAppScaffold(
+                navController = navController
+            ) {
+                HomeScreen()
+            }
 
         }
 
+        composable(NavRoutes.Wardrobe) {
+
+            MainAppScaffold(
+                navController = navController
+            ) {
+                WardrobeScreen()
+            }
+
+        }
+
+        composable(NavRoutes.Profile) {
+
+            MainAppScaffold(
+                navController = navController
+            ) {
+                ProfileScreen()
+            }
+
+        }
         composable(NavRoutes.Signup) {
 
             SignupScreen(
