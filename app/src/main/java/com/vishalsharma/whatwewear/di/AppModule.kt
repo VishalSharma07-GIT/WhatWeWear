@@ -13,6 +13,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -23,7 +24,11 @@ object AppModule {
     fun provideFirebaseAuth(): FirebaseAuth {
         return FirebaseAuth.getInstance()
     }
-
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore {
+        return FirebaseFirestore.getInstance()
+    }
     @Provides
     @Singleton
     fun provideFirebaseAuthProvider(
@@ -31,6 +36,7 @@ object AppModule {
     ): FirebaseAuthProvider {
         return FirebaseAuthProvider(firebaseAuth)
     }
+
 
     @Provides
     @Singleton

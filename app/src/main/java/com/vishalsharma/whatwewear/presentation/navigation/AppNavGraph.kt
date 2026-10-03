@@ -1,6 +1,8 @@
 package com.vishalsharma.whatwewear.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -13,12 +15,14 @@ import com.vishalsharma.whatwewear.presentation.profile.ProfileScreen
 import com.vishalsharma.whatwewear.presentation.signup.SignupScreen
 import com.vishalsharma.whatwewear.presentation.splash.SplashScreen
 import com.vishalsharma.whatwewear.presentation.wardrobe.WardrobeScreen
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.vishalsharma.whatwewear.presentation.wardrobe.WardrobeViewModel
 
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
-
+    val wardrobeViewModel: WardrobeViewModel = hiltViewModel()
     NavHost(
         navController = navController,
         startDestination = NavRoutes.Splash
@@ -109,21 +113,29 @@ fun AppNavGraph() {
 
         composable(NavRoutes.Wardrobe) {
 
-            MainAppScaffold(
-                navController = navController
-            ) {
+            val clothingItems by wardrobeViewModel.clothingItems
+                .collectAsStateWithLifecycle()
+
+            MainAppScaffold(navController = navController) {
+
                 WardrobeScreen(
+                    clothingItems = clothingItems,
                     onAddClothingClick = {
                         navController.navigate(NavRoutes.AddClothing)
                     }
                 )
             }
-
         }
         composable(NavRoutes.AddClothing) {
 
-            AddClothingScreen()
+            AddClothingScreen(
+                onClothingSaved = { clothingItem ->
 
+                    wardrobeViewModel.addClothing(clothingItem)
+
+                    navController.popBackStack()
+                }
+            )
         }
         composable(NavRoutes.Profile) {
 

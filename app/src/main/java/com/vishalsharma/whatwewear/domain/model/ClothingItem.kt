@@ -5,7 +5,8 @@ data class ClothingItem(
     val name: String,
     val brand: String,
     val category: String,
-    val imageRes: Int
-){
-
-}
+    val imageRes: Int? = null,
+    val imageUri: String? = null,
+    val color: String = "",
+    val size: String = ""
+)

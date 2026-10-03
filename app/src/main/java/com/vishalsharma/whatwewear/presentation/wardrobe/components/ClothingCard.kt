@@ -17,6 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
 
 @Composable
@@ -37,20 +38,41 @@ fun ClothingCard(
 
         Column {
 
-            Image(
-                painter = painterResource(id = item.imageRes),
-                contentDescription = item.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 16.dp,
-                            topEnd = 16.dp
-                        )
-                    ),
-                contentScale = ContentScale.Crop
-            )
+            when {
+                item.imageUri != null -> {
+                    Image(
+                        painter = rememberAsyncImagePainter(item.imageUri),
+                        contentDescription = item.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 16.dp,
+                                    topEnd = 16.dp
+                                )
+                            ),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                item.imageRes != null -> {
+                    Image(
+                        painter = painterResource(id = item.imageRes),
+                        contentDescription = item.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 16.dp,
+                                    topEnd = 16.dp
+                                )
+                            ),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
 
             Column(
                 modifier = Modifier

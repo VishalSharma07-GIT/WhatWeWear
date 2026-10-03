@@ -51,6 +51,8 @@ hilt {
 }
 
 dependencies {
+    implementation(libs.coil.compose)
+
     implementation(libs.androidx.credential.manager)
     implementation(libs.androidx.credential.manager.play.services)
     implementation(libs.googleid)
@@ -64,6 +66,7 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
 
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.foundation)

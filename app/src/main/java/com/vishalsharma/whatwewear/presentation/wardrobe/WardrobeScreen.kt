@@ -28,11 +28,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.vishalsharma.whatwewear.domain.model.ClothingItem
 import com.vishalsharma.whatwewear.presentation.wardrobe.components.ClothingCard
 import com.vishalsharma.whatwewear.presentation.wardrobe.components.EmptyWardrobeState
 
 @Composable
 fun WardrobeScreen(
+    clothingItems: List<ClothingItem>,
     onAddClothingClick: () -> Unit = {},
     onClothingClick: (String) -> Unit = {}
 ) {
@@ -50,9 +52,9 @@ fun WardrobeScreen(
     }
 
     val filteredItems = if (selectedCategory == "All") {
-        sampleClothingItems
+        clothingItems
     } else {
-        sampleClothingItems.filter {
+        clothingItems.filter {
             it.category == selectedCategory
         }
     }
