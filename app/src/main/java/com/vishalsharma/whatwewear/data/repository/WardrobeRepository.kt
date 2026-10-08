@@ -25,4 +25,49 @@ class WardrobeRepository @Inject constructor(
             .set(clothing)
             .await()
     }
-}
+
+    suspend fun updateClothing(
+        clothing: ClothingDto
+    ) {
+        val userId = auth.currentUser?.uid
+            ?: throw IllegalStateException("User is not logged in")
+
+        firestore
+            .collection("users")
+            .document(userId)
+            .collection("clothing")
+            .document(clothing.id)
+            .set(clothing)
+            .await()
+    }
+
+    suspend fun getClothing(): List<ClothingDto> {
+
+        val userId = auth.currentUser?.uid
+            ?: throw IllegalStateException("User is not logged in")
+
+        return firestore
+            .collection("users")
+            .document(userId)
+            .collection("clothing")
+            .get()
+            .await()
+            .documents
+            .mapNotNull { document ->
+                document.toObject(ClothingDto::class.java)
+
+            }
+    }
+
+    suspend fun deleteClothing(clothingId: String){
+        val userId= auth.currentUser?.uid ?: throw IllegalStateException("User is not logged in")
+
+        firestore
+            .collection("users")
+            .document(userId)
+            .collection("clothing")
+            .document(clothingId)
+            .delete()
+            .await()
+    }
+    }

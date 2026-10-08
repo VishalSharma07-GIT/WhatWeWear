@@ -5,6 +5,7 @@ object NavRoutes {
     const val Splash = "splash"
 
     const val Onboarding = "onboarding"
+    const val EditClothing = "edit_clothing"
 
     const val Login = "login"
 

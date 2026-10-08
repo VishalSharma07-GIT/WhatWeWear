@@ -16,6 +16,8 @@ import com.vishalsharma.whatwewear.presentation.signup.SignupScreen
 import com.vishalsharma.whatwewear.presentation.splash.SplashScreen
 import com.vishalsharma.whatwewear.presentation.wardrobe.WardrobeScreen
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.vishalsharma.whatwewear.presentation.clothingdetails.ClothingDetailsScreen
+import com.vishalsharma.whatwewear.presentation.editclothing.EditClothingScreen
 import com.vishalsharma.whatwewear.presentation.wardrobe.WardrobeViewModel
 
 
@@ -112,16 +114,81 @@ fun AppNavGraph() {
         }
 
         composable(NavRoutes.Wardrobe) {
-
             val clothingItems by wardrobeViewModel.clothingItems
                 .collectAsStateWithLifecycle()
 
             MainAppScaffold(navController = navController) {
-
                 WardrobeScreen(
                     clothingItems = clothingItems,
                     onAddClothingClick = {
                         navController.navigate(NavRoutes.AddClothing)
+                    },
+                    onClothingClick = { clothingId ->
+                        navController.navigate(
+                            "${NavRoutes.ClothingDetails}/$clothingId"
+                        )
+                    }
+                )
+            }
+        }
+
+        composable(
+            route = "${NavRoutes.ClothingDetails}/{clothingId}"
+        ) { backStackEntry ->
+
+            val clothingId =
+                backStackEntry.arguments?.getString("clothingId")
+
+            val clothingItem =
+                clothingId?.let {
+                    wardrobeViewModel.getClothingById(it)
+                }
+
+            if (clothingItem != null) {
+
+                ClothingDetailsScreen(
+                    clothingItem = clothingItem,
+
+                    onEditClick = {
+                        navController.navigate(
+                            "${NavRoutes.EditClothing}/${clothingItem.id}"
+                        )
+                    },
+
+                    onDeleteClick = {
+                        wardrobeViewModel.deleteClothing(
+                            clothingItem.id
+                        )
+
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+        composable(
+            route = "${NavRoutes.EditClothing}/{clothingId}"
+        ) { backStackEntry ->
+
+            val clothingId =
+                backStackEntry.arguments?.getString("clothingId")
+
+            val clothingItem =
+                clothingId?.let {
+                    wardrobeViewModel.getClothingById(it)
+                }
+
+            if (clothingItem != null) {
+
+                EditClothingScreen(
+                    clothingItem = clothingItem,
+
+                    onClothingUpdated = { updatedItem ->
+
+                        wardrobeViewModel.updateClothing(
+                            updatedItem
+                        )
+
+                        navController.popBackStack()
                     }
                 )
             }

@@ -1,6 +1,5 @@
-package com.vishalsharma.whatwewear.presentation.add
+package com.vishalsharma.whatwewear.presentation.editclothing
 
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,36 +17,92 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.vishalsharma.whatwewear.domain.model.ClothingItem
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.rememberAsyncImagePainter
-import com.vishalsharma.whatwewear.domain.model.ClothingItem
 
 @Composable
-fun AddClothingScreen(
-    onClothingSaved: (ClothingItem) -> Unit ={}
+fun EditClothingScreen(
+    clothingItem: ClothingItem,
+    onClothingUpdated: (ClothingItem) -> Unit = {}
 ) {
 
+    var clothingName by remember {
+        mutableStateOf(clothingItem.name)
+    }
+
+    var brand by remember {
+        mutableStateOf(clothingItem.brand)
+    }
+
+    var category by remember {
+        mutableStateOf(clothingItem.category)
+    }
+
+    var color by remember {
+        mutableStateOf(clothingItem.color)
+    }
+
+    var size by remember {
+        mutableStateOf(clothingItem.size)
+    }
+    var categoryExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var colorExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var sizeExpanded by remember {
+        mutableStateOf(false)
+    }
+    val categories = listOf(
+        "Tops",
+        "Bottoms",
+        "Shoes",
+        "Accessories"
+    )
+
+    val colors = listOf(
+        "Black",
+        "White",
+        "Blue",
+        "Grey",
+        "Brown",
+        "Green",
+        "Red",
+        "Other"
+    )
+
+    val sizes = listOf(
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+    )
     val context = LocalContext.current
 
     var selectedImageUri by remember {
-        mutableStateOf<Uri?>(null)
+        mutableStateOf(
+            clothingItem.imageUri?.let { Uri.parse(it) }
+        )
     }
-
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -64,69 +119,23 @@ fun AddClothingScreen(
             selectedImageUri = it
         }
     }
-    var clothingName by remember {
-        mutableStateOf("")
-    }
 
-    var brand by remember {
-        mutableStateOf("")
-    }
-
-    var category by remember {
-        mutableStateOf("")
-    }
-
-    var categoryExpanded by remember {
-        mutableStateOf(false)
-    }
-
-
-
-    var color by remember {
-        mutableStateOf("")
-    }
-    var colorExpanded by remember {
-        mutableStateOf(false)
-    }
-
-    var size by remember {
-        mutableStateOf("")
-    }
-    var sizeExpanded by remember {
-        mutableStateOf(false)
-    }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
+
         Text(
-            text = "Add Clothing"
+            text = "Edit Clothing"
         )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = {
-                imagePickerLauncher.launch(arrayOf("image/*"))
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Choose Clothing Image"
-            )
-        }
         selectedImageUri?.let { uri ->
-
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
 
             Image(
                 painter = rememberAsyncImagePainter(uri),
-                contentDescription = "Selected clothing image",
+                contentDescription = clothingItem.name,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
@@ -136,34 +145,38 @@ fun AddClothingScreen(
                 contentScale = ContentScale.Crop
             )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                imagePickerLauncher.launch(
+                    arrayOf("image/*")
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Choose New Image")
+        }
 
         OutlinedTextField(
             value = clothingName,
             onValueChange = {
                 clothingName = it
             },
-            modifier = Modifier.fillMaxWidth(),
             label = {
                 Text("Clothing Name")
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         )
-
-        Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedTextField(
             value = brand,
             onValueChange = {
                 brand = it
             },
-            modifier = Modifier.fillMaxWidth(),
             label = {
                 Text("Brand")
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         )
-
-        Spacer(modifier = Modifier.height(12.dp))
 
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -173,13 +186,10 @@ fun AddClothingScreen(
                 value = category,
                 onValueChange = {},
                 readOnly = true,
-                modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text("Category")
                 },
-                trailingIcon = {
-                    Text("▼")
-                }
+                modifier = Modifier.fillMaxWidth()
             )
 
             Box(
@@ -196,27 +206,20 @@ fun AddClothingScreen(
                     categoryExpanded = false
                 }
             ) {
-                listOf(
-                    "Tops",
-                    "Bottoms",
-                    "Shoes",
-                    "Accessories"
-                ).forEach { item ->
+                categories.forEach { option ->
 
                     DropdownMenuItem(
                         text = {
-                            Text(item)
+                            Text(option)
                         },
                         onClick = {
-                            category = item
+                            category = option
                             categoryExpanded = false
                         }
                     )
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
 
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -226,13 +229,10 @@ fun AddClothingScreen(
                 value = color,
                 onValueChange = {},
                 readOnly = true,
-                modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text("Color")
                 },
-                trailingIcon = {
-                    Text("▼")
-                }
+                modifier = Modifier.fillMaxWidth()
             )
 
             Box(
@@ -249,31 +249,20 @@ fun AddClothingScreen(
                     colorExpanded = false
                 }
             ) {
-                listOf(
-                    "Black",
-                    "White",
-                    "Blue",
-                    "Grey",
-                    "Brown",
-                    "Green",
-                    "Red",
-                    "Other"
-                ).forEach { item ->
+                colors.forEach { option ->
 
                     DropdownMenuItem(
                         text = {
-                            Text(item)
+                            Text(option)
                         },
                         onClick = {
-                            color = item
+                            color = option
                             colorExpanded = false
                         }
                     )
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
 
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -283,13 +272,10 @@ fun AddClothingScreen(
                 value = size,
                 onValueChange = {},
                 readOnly = true,
-                modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text("Size")
                 },
-                trailingIcon = {
-                    Text("▼")
-                }
+                modifier = Modifier.fillMaxWidth()
             )
 
             Box(
@@ -306,21 +292,14 @@ fun AddClothingScreen(
                     sizeExpanded = false
                 }
             ) {
-                listOf(
-                    "XS",
-                    "S",
-                    "M",
-                    "L",
-                    "XL",
-                    "XXL"
-                ).forEach { item ->
+                sizes.forEach { option ->
 
                     DropdownMenuItem(
                         text = {
-                            Text(item)
+                            Text(option)
                         },
                         onClick = {
-                            size = item
+                            size = option
                             sizeExpanded = false
                         }
                     )
@@ -328,28 +307,27 @@ fun AddClothingScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
 
         Button(
             onClick = {
 
-                val clothingItem = ClothingItem(
-                    id = System.currentTimeMillis().toString(),
+                val updatedItem = clothingItem.copy(
                     name = clothingName,
                     brand = brand,
                     category = category,
-                    imageUri = selectedImageUri?.toString(),
                     color = color,
-                    size = size
+                    size = size,
+                    imageUri = selectedImageUri?.toString()
                 )
 
-                onClothingSaved(clothingItem)
+                onClothingUpdated(updatedItem)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = "Save Clothing"
-            )
+            Text("Save Changes")
         }
     }
 }
