@@ -1,117 +1,57 @@
 # 👕 WhatWeWear
 
-A modern Android digital wardrobe application that helps users organize their clothing and build outfits effortlessly.
+A modern Android digital wardrobe application that helps users organize their clothing, manage their wardrobe, and build personalized outfits effortlessly.
 
-Built with **Kotlin**, **Jetpack Compose**, **Firebase**, **Hilt**, and **MVVM Clean Architecture**.
+Built with **Kotlin**, **Jetpack Compose**, **Firebase**, **Hilt**, **MVVM**, and **Clean Architecture**.
 
 ---
 
 ## ✨ Features
 
-### Authentication
+### 🔐 Authentication
+
 - Splash Screen
-- Beautiful Onboarding
+- Onboarding
 - Email & Password Login
 - Email & Password Signup
 - Forgot Password
 - Google Sign-In
 - Auto Login
-
-### Architecture
-- MVVM
-- Repository Pattern
-- Hilt Dependency Injection
-- StateFlow
-- Navigation Compose
-
----
-
-## 🛠 Tech Stack
-
-- Kotlin
-- Jetpack Compose
-- Material 3
 - Firebase Authentication
-- Hilt
-- Navigation Compose
-- StateFlow
-- Coroutines
+
+### 👕 Digital Wardrobe
+
+- Add Clothing
+- Clothing Image Selection
+- Clothing Categories
+- Color & Size Selection
+- Wardrobe Category Filtering
+- Clothing Details
+- Edit Clothing
+- Replace Clothing Image
+- Delete Clothing
+- Persistent Clothing Data with Firestore
+
+### 🏠 Home
+
+- Home Dashboard
+- Weather Section
+- Curated Looks
+- Sustainability Score
+- Pro Styling Tip
+- AI Style Assistant Entry Point
 
 ---
 
-## 📂 Project Structure
+## 🏗 Architecture
 
-```
-presentation/
-    auth/
-    onboarding/
-    splash/
-    home/
-    wardrobe/
-    profile/
-    settings/
+The project follows a clean and scalable Android architecture:
 
-data/
-    repository/
-    remote/
-    preferences/
-
-domain/
-    repository/
-    model/
-
-di/
-
-ui/
-```
-
----
-
-## 🚀 Upcoming Features
-
-- Digital Wardrobe
-- Upload Clothing
-- Firebase Storage
-- Firestore Database
-- AI Outfit Recommendations
-- Weather-Based Outfit Suggestions
-- Smart Search & Filters
-
----
-
-## 📱 Screenshots
-
-Coming Soon
-
----
-
-## 👨‍💻 Developer
-
-**Vishal Sharma**
-
-Android Developer passionate about building modern Android applications using Kotlin and Jetpack Compose.
-
----
-
-## ⭐ Current Progress
-
-- [x] Splash Screen
-- [x] Onboarding
-- [x] Firebase Authentication
-- [x] Login
-- [x] Signup
-- [x] Forgot Password
-- [x] Google Sign-In
-- [x] Auto Login
-- [ ] Home Screen
-- [ ] Wardrobe
-- [ ] Add Clothing
-- [ ] Firebase Storage
-- [ ] Firestore
-- [ ] AI Stylist
-
----
-
-## 📌 Status
-
-🚧 Currently under active development.
+```text
+Jetpack Compose UI
+        ↓
+    ViewModel
+        ↓
+   Repository
+        ↓
+ Firebase / Local Data
