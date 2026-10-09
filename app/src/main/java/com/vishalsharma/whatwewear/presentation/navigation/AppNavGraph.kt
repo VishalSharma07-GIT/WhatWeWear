@@ -19,6 +19,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.vishalsharma.whatwewear.presentation.clothingdetails.ClothingDetailsScreen
 import com.vishalsharma.whatwewear.presentation.editclothing.EditClothingScreen
 import com.vishalsharma.whatwewear.presentation.wardrobe.WardrobeViewModel
+import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 
 
 @Composable
@@ -248,6 +253,49 @@ fun AppNavGraph() {
 
             )
 
+        }
+        composable(NavRoutes.Studio) {
+            MainAppScaffold(navController = navController) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Studio — Coming Soon")
+                }
+            }
+        }
+
+        composable(NavRoutes.Inspire) {
+            MainAppScaffold(navController = navController) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Inspire — Coming Soon")
+                }
+            }
+        }
+
+        composable(NavRoutes.Planner) {
+            MainAppScaffold(navController = navController) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Planner — Coming Soon")
+                }
+            }
+        }
+
+        composable(NavRoutes.Insights) {
+            MainAppScaffold(navController = navController) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Insights — Coming Soon")
+                }
+            }
         }
 
 

@@ -70,9 +70,26 @@ fun EditClothingScreen(
     var sizeExpanded by remember {
         mutableStateOf(false)
     }
+    var season by remember {
+        mutableStateOf(clothingItem.season)
+    }
+
+    var seasonExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var occasion by remember {
+        mutableStateOf(clothingItem.occasion)
+    }
+
+    var occasionExpanded by remember {
+        mutableStateOf(false)
+    }
     val categories = listOf(
         "Tops",
         "Bottoms",
+        "Dresses",
+        "Outerwear",
         "Shoes",
         "Accessories"
     )
@@ -307,9 +324,72 @@ fun EditClothingScreen(
             }
         }
 
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = season,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Season") },
+                trailingIcon = { Text("▼") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { seasonExpanded = true }
+            )
+
+            DropdownMenu(
+                expanded = seasonExpanded,
+                onDismissRequest = { seasonExpanded = false }
+            ) {
+                listOf("Spring", "Summer", "Autumn", "Winter").forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            season = option
+                            seasonExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = occasion,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Occasion") },
+                trailingIcon = { Text("▼") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { occasionExpanded = true }
+            )
+
+            DropdownMenu(
+                expanded = occasionExpanded,
+                onDismissRequest = { occasionExpanded = false }
+            ) {
+                listOf("Casual", "Formal", "Party", "Work", "Sports").forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            occasion = option
+                            occasionExpanded = false
+                        }
+                    )
+                }
+            }
+        }
         Spacer(
             modifier = Modifier.height(8.dp)
         )
+
 
         Button(
             onClick = {
@@ -320,6 +400,8 @@ fun EditClothingScreen(
                     category = category,
                     color = color,
                     size = size,
+                    season = season,
+                    occasion = occasion,
                     imageUri = selectedImageUri?.toString()
                 )
 

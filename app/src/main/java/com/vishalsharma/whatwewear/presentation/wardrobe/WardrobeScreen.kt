@@ -16,6 +16,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +38,20 @@ import androidx.compose.ui.unit.dp
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
 import com.vishalsharma.whatwewear.presentation.wardrobe.components.ClothingCard
 import com.vishalsharma.whatwewear.presentation.wardrobe.components.EmptyWardrobeState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import com.vishalsharma.whatwewear.presentation.wardrobe.components.WardrobeFilter
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
 
 @Composable
 fun WardrobeScreen(
@@ -38,11 +59,12 @@ fun WardrobeScreen(
     onAddClothingClick: () -> Unit = {},
     onClothingClick: (String) -> Unit = {}
 ) {
-
     val categories = listOf(
         "All",
         "Tops",
         "Bottoms",
+        "Dresses",
+        "Outerwear",
         "Shoes",
         "Accessories"
     )
@@ -50,38 +72,98 @@ fun WardrobeScreen(
     var selectedCategory by remember {
         mutableStateOf("All")
     }
-
-    val filteredItems = if (selectedCategory == "All") {
-        clothingItems
-    } else {
-        clothingItems.filter {
-            it.category == selectedCategory
-        }
+    var selectedColor by remember {
+        mutableStateOf("All Colors")
     }
 
-    Column(
+    var selectedSeason by remember {
+        mutableStateOf("All Seasons")
+    }
+
+    var selectedOccasion by remember {
+        mutableStateOf("All Occasions")
+    }
+
+    var expandedFilter by remember {
+        mutableStateOf("")
+    }
+
+
+    val filteredItems = clothingItems.filter { item ->
+        val matchesCategory =
+            selectedCategory == "All" ||
+                    item.category.equals(selectedCategory, ignoreCase = true)
+
+        val matchesColor =
+            selectedColor == "All Colors" ||
+                    item.color.equals(selectedColor, ignoreCase = true)
+
+        val matchesSeason =
+            selectedSeason == "All Seasons" ||
+                    item.season.equals(selectedSeason, ignoreCase = true)
+
+        val matchesOccasion =
+            selectedOccasion == "All Occasions" ||
+                    item.occasion.equals(selectedOccasion, ignoreCase = true)
+
+        matchesCategory &&
+                matchesColor &&
+                matchesSeason &&
+                matchesOccasion
+    }
+
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .background(Color(0xFFFAF7F2))
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+        ) {
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(
+                onClick = {
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Menu,
+                    contentDescription = "Open menu",
+                    tint = Color(0xFF77716C)
+                )
+            }
 
             Text(
-                text = "My Wardrobe",
-                style = MaterialTheme.typography.headlineMedium
+                text = "WWW",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = Color(0xFF211B18)
             )
 
             IconButton(
-                onClick = onAddClothingClick
+                onClick = {
+                },
+                modifier = Modifier
+                    .background(
+                        color = Color(0xFFE7DED4),
+                        shape = CircleShape
+                    )
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Add,
-                    contentDescription = "Add clothing"
+                    imageVector = Icons.Outlined.Person,
+                    contentDescription = "Profile",
+                    tint = Color(0xFF77716C)
                 )
             }
         }
@@ -94,18 +176,29 @@ fun WardrobeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(28.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-
             categories.forEach { category ->
 
-                FilterChip(
-                    selected = selectedCategory == category,
-                    onClick = {
-                        selectedCategory = category
+                val isSelected = selectedCategory == category
+
+                Text(
+                    text = category,
+                    color = if (isSelected) {
+                        Color(0xFF29231F)
+                    } else {
+                        Color(0xFF89827B)
                     },
-                    label = {
-                        Text(text = category)
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = if (isSelected) {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Medium
+                        }
+                    ),
+                    modifier = Modifier.clickable {
+                        selectedCategory = category
                     }
                 )
             }
@@ -114,6 +207,77 @@ fun WardrobeScreen(
         Spacer(
             modifier = Modifier.height(24.dp)
         )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            WardrobeFilter(
+                label = "Color",
+                options = listOf(
+                    "All Colors",
+                    "Black",
+                    "White",
+                    "Blue",
+                    "Grey",
+                    "Brown",
+                    "Green",
+                    "Red",
+                    "Other"
+                ),
+                selectedValue = selectedColor,
+                expanded = expandedFilter == "color",
+                onExpandedChange = {
+                    expandedFilter = if (it) "color" else ""
+                },
+                onOptionSelected = {
+                    selectedColor = it
+                }
+            )
+
+            WardrobeFilter(
+                label = "Season",
+                options = listOf(
+                    "All Seasons",
+                    "Spring",
+                    "Summer",
+                    "Autumn",
+                    "Winter"
+                ),
+                selectedValue = selectedSeason,
+                expanded = expandedFilter == "season",
+                onExpandedChange = {
+                    expandedFilter = if (it) "season" else ""
+                },
+                onOptionSelected = {
+                    selectedSeason = it
+                }
+            )
+
+            WardrobeFilter(
+                label = "Occasion",
+                options = listOf(
+                    "All Occasions",
+                    "Casual",
+                    "Formal",
+                    "Party",
+                    "Work",
+                    "Sports"
+                ),
+                selectedValue = selectedOccasion,
+                expanded = expandedFilter == "occasion",
+                onExpandedChange = {
+                    expandedFilter = if (it) "occasion" else ""
+                },
+                onOptionSelected = {
+                    selectedOccasion = it
+                }
+            )
+        }
+
 
         Text(
             text = "${filteredItems.size} items",
@@ -152,6 +316,22 @@ fun WardrobeScreen(
                     )
                 }
             }
+        }
+        }
+
+        FloatingActionButton(
+            onClick = onAddClothingClick,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(24.dp),
+            containerColor = Color(0xFF29231F),
+            contentColor = Color(0xFFFAF7F2),
+            shape = CircleShape
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "Add clothing"
+            )
         }
     }
 }

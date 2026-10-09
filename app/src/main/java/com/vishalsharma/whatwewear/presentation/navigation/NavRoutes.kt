@@ -23,6 +23,10 @@ object NavRoutes {
     const val Profile = "profile"
 
     const val Settings = "settings"
+    const val Studio = "studio"
+    const val Inspire = "inspire"
+    const val Planner = "planner"
+    const val Insights = "insights"
 }
 
 // we have created the object because there should only be one list of routes in the app

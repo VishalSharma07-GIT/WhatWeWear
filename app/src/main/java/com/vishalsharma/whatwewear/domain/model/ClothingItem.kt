@@ -8,5 +8,7 @@ data class ClothingItem(
     val imageRes: Int? = null,
     val imageUri: String? = null,
     val color: String = "",
-    val size: String = ""
+    val size: String = "",
+    val season: String = "",
+    val occasion: String = ""
 )

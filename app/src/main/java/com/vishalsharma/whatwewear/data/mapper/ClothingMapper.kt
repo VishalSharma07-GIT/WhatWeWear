@@ -11,7 +11,22 @@ fun ClothingDto.toDomain(): ClothingItem {
         category = category,
         color = color,
         size = size,
-        imageRes = null,
-        imageUri = imageUrl
+        imageUri = imageUrl,
+        season = season,
+        occasion = occasion
+    )
+}
+
+fun ClothingItem.toDto(): ClothingDto {
+    return ClothingDto(
+        id = id,
+        name = name,
+        brand = brand,
+        category = category,
+        color = color,
+        size = size,
+        imageUrl = imageUri.orEmpty(),
+        season = season,
+        occasion = occasion
     )
 }

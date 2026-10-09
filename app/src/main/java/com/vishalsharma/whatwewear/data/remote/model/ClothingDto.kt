@@ -7,5 +7,7 @@ data class ClothingDto(
     val category: String = "",
     val color: String = "",
     val size: String = "",
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+    val season: String = "",
+    val occasion: String = ""
 )

@@ -25,7 +25,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material3.DropdownMenu
@@ -95,9 +97,25 @@ fun AddClothingScreen(
     var sizeExpanded by remember {
         mutableStateOf(false)
     }
+    var season by remember {
+        mutableStateOf("")
+    }
+
+    var seasonExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var occasion by remember {
+        mutableStateOf("")
+    }
+
+    var occasionExpanded by remember {
+        mutableStateOf(false)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         verticalArrangement = Arrangement.Top
     ) {
@@ -199,6 +217,8 @@ fun AddClothingScreen(
                 listOf(
                     "Tops",
                     "Bottoms",
+                    "Dresses",
+                    "Outerwear",
                     "Shoes",
                     "Accessories"
                 ).forEach { item ->
@@ -326,7 +346,75 @@ fun AddClothingScreen(
                     )
                 }
             }
+
         }
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = season,
+                onValueChange = {},
+                readOnly = true,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Season") },
+                trailingIcon = { Text("▼") }
+            )
+
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { seasonExpanded = true }
+            )
+
+            DropdownMenu(
+                expanded = seasonExpanded,
+                onDismissRequest = { seasonExpanded = false }
+            ) {
+                listOf("Spring", "Summer", "Autumn", "Winter").forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(item) },
+                        onClick = {
+                            season = item
+                            seasonExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = occasion,
+                onValueChange = {},
+                readOnly = true,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Occasion") },
+                trailingIcon = { Text("▼") }
+            )
+
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { occasionExpanded = true }
+            )
+
+            DropdownMenu(
+                expanded = occasionExpanded,
+                onDismissRequest = { occasionExpanded = false }
+            ) {
+                listOf("Casual", "Formal", "Party", "Work", "Sports").forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(item) },
+                        onClick = {
+                            occasion = item
+                            occasionExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -340,7 +428,9 @@ fun AddClothingScreen(
                     category = category,
                     imageUri = selectedImageUri?.toString(),
                     color = color,
-                    size = size
+                    size = size,
+                    season = season,
+                    occasion = occasion
                 )
 
                 onClothingSaved(clothingItem)
