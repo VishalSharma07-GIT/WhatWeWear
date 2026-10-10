@@ -48,10 +48,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import com.vishalsharma.whatwewear.presentation.wardrobe.components.WardrobeFilter
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun WardrobeScreen(
@@ -124,52 +127,56 @@ fun WardrobeScreen(
                 .padding(24.dp)
         ) {
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = {
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Menu,
-                    contentDescription = "Open menu",
-                    tint = Color(0xFF77716C)
-                )
-            }
 
-            Text(
-                text = "WWW",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = Color(0xFF211B18)
-            )
-
-            IconButton(
-                onClick = {
-                },
+            Row(
                 modifier = Modifier
-                    .background(
-                        color = Color(0xFFE7DED4),
-                        shape = CircleShape
-                    )
+                    .fillMaxWidth()
+                    .height(76.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Person,
-                    contentDescription = "Profile",
-                    tint = Color(0xFF77716C)
-                )
-            }
-        }
+                IconButton(
+                    onClick = {},
+                    modifier = Modifier.size(44.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Menu,
+                        contentDescription = "Open menu",
+                        tint = Color(0xFF77716C)
+                    )
+                }
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
+                Text(
+                    text = "WWW",
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 40.sp,
+                        letterSpacing = 1.sp
+                    ),
+                    color = Color(0xFF211B18)
+                )
+
+                IconButton(
+                    onClick = {},
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(
+                            color = Color(0xFFE7DED4),
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Person,
+                        contentDescription = "Profile",
+                        tint = Color(0xFF77716C)
+                    )
+                }
+            }
+
+
+            Spacer(
+            modifier = Modifier.height(12.dp)
         )
 
         Row(
@@ -205,7 +212,7 @@ fun WardrobeScreen(
         }
 
         Spacer(
-            modifier = Modifier.height(24.dp)
+            modifier = Modifier.height(16.dp)
         )
 
         Row(
@@ -285,7 +292,7 @@ fun WardrobeScreen(
         )
 
         Spacer(
-            modifier = Modifier.height(16.dp)
+            modifier = Modifier.height(12.dp)
         )
 
         if (filteredItems.isEmpty()) {
@@ -298,9 +305,12 @@ fun WardrobeScreen(
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 96.dp)
             ) {
 
                 items(

@@ -25,6 +25,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
@@ -48,21 +51,28 @@ fun ClothingCard(
         Column(
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFFEDE7DF)),
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFF8F4F0)),
                 contentAlignment = Alignment.Center
             ) {
                 when {
-                    item.imageUri != null -> {
-                        Image(
-                            painter = rememberAsyncImagePainter(item.imageUri),
+                    !item.imageUri.isNullOrBlank() -> {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(item.imageUri)
+                                .crossfade(true)
+                                .build(),
                             contentDescription = item.name,
-                            modifier = Modifier.fillMaxWidth().height(220.dp),
-                            contentScale = ContentScale.Crop
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp)
+                                .padding(12.dp),
+                            contentScale = ContentScale.Fit
                         )
                     }
 
@@ -70,14 +80,17 @@ fun ClothingCard(
                         Image(
                             painter = painterResource(id = item.imageRes),
                             contentDescription = item.name,
-                            modifier = Modifier.fillMaxWidth().height(220.dp),
-                            contentScale = ContentScale.Crop
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp)
+                                .padding(12.dp),
+                            contentScale = ContentScale.Fit
                         )
                     }
 
                     else -> {
                         Text(
-                            text = "No image",
+                            text = "Add a photo",
                             color = Color(0xFF89827B),
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -88,7 +101,7 @@ fun ClothingCard(
             Column(
                 modifier = Modifier.padding(
                     start = 4.dp,
-                    top = 12.dp,
+                    top = 10.dp,
                     end = 4.dp,
                     bottom = 8.dp
                 )
@@ -96,14 +109,14 @@ fun ClothingCard(
                 Text(
                     text = item.brand.ifBlank { "UNBRANDED" },
                     color = Color(0xFF89827B),
-                    fontSize = 10.sp,
-                    letterSpacing = 1.5.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontSize = 11.sp,
+                    letterSpacing = 1.6.sp,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = item.name,
