@@ -57,7 +57,7 @@ fun ClothingCard(
                     .fillMaxWidth()
                     .height(200.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFF8F4F0)),
+                    .background(Color(0xFFF0EBE4)),
                 contentAlignment = Alignment.Center
             ) {
                 when {

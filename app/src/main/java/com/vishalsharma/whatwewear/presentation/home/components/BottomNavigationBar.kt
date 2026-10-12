@@ -71,7 +71,7 @@ fun BottomNavigationBar(
     NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
-            .height(76.dp),
+            .height(92.dp),
         containerColor = Ivory,
         contentColor = MutedBrown,
         tonalElevation = 0.dp
@@ -93,8 +93,9 @@ fun BottomNavigationBar(
                 label = {
                     Text(
                         text = item.label,
-                        fontSize = 10.sp,
-                        maxLines = 1
+                        fontSize = 11.sp,
+                        maxLines = 1,
+                        letterSpacing = 0.2.sp
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
@@ -102,7 +103,7 @@ fun BottomNavigationBar(
                     selectedTextColor = AccentBrown,
                     unselectedIconColor = MutedBrown,
                     unselectedTextColor = MutedBrown,
-                    indicatorColor = Color(0xFFEDE3D8)
+                    indicatorColor = Color(0xFFF0E3D8)
                 )
             )
         }

@@ -53,6 +53,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.ui.unit.sp
 
@@ -124,7 +125,7 @@ fun WardrobeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .padding(horizontal = 20.dp, vertical = 12.dp)
         ) {
 
 
@@ -212,7 +213,7 @@ fun WardrobeScreen(
         }
 
         Spacer(
-            modifier = Modifier.height(16.dp)
+            modifier = Modifier.height(12.dp)
         )
 
         Row(
@@ -310,7 +311,10 @@ fun WardrobeScreen(
                     .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 96.dp)
+                contentPadding = PaddingValues(
+                    top = 4.dp,
+                    bottom = 120.dp
+                )
             ) {
 
                 items(
@@ -333,13 +337,14 @@ fun WardrobeScreen(
             onClick = onAddClothingClick,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(24.dp),
-            containerColor = Color(0xFF29231F),
+                .padding(end = 20.dp, bottom = 24.dp)
+                .size(64.dp),
+            containerColor = Color(0xFF6F5964),
             contentColor = Color(0xFFFAF7F2),
             shape = CircleShape
         ) {
             Icon(
-                imageVector = Icons.Filled.Add,
+                imageVector = Icons.Outlined.AutoAwesome,
                 contentDescription = "Add clothing"
             )
         }
