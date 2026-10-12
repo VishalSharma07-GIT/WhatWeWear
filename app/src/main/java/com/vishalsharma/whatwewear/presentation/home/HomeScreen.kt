@@ -15,11 +15,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vishalsharma.whatwewear.R
 import com.vishalsharma.whatwewear.presentation.home.components.CuratedLookSection
+import com.vishalsharma.whatwewear.presentation.home.components.HomeActionCards
 import com.vishalsharma.whatwewear.presentation.home.components.HomeTopBar
 import com.vishalsharma.whatwewear.presentation.home.components.ProTipCard
 import com.vishalsharma.whatwewear.presentation.home.components.StyleAssistantButton
@@ -28,6 +33,9 @@ import com.vishalsharma.whatwewear.presentation.home.components.WeatherCard
 
 @Composable
 fun HomeScreen(
+    onAddClothingClick: () -> Unit,
+    onPlannerClick: () -> Unit,
+    onStudioClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
 
@@ -41,24 +49,30 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(24.dp),
+                .padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.Top
         ) {
 
             HomeTopBar()
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "DAILY STYLE & WEATHER",
-                style = MaterialTheme.typography.labelLarge
+                text = "YOUR PERSONAL STYLE, REIMAGINED",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color(0xFF89827B),
+                letterSpacing = 1.5.sp
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
                 text = "${uiState.greeting}, ${uiState.userName}.",
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = Color(0xFF211B18)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -68,7 +82,14 @@ fun HomeScreen(
                 description = uiState.weatherDescription
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            HomeActionCards(
+                onDigitizeClick = onAddClothingClick,
+                onPlannerClick = onPlannerClick
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             Text(
                 text = "Today's Curated Looks",
@@ -91,7 +112,9 @@ fun HomeScreen(
                     viewModel.selectLook(
                         uiState.currentLookIndex + 1
                     )
-                }
+                },
+                onGetTheLookClick = onStudioClick
+
             )
 
             Spacer(modifier = Modifier.height(32.dp))

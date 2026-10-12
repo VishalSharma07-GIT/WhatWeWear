@@ -21,7 +21,8 @@ fun CuratedLookSection(
     imageRes: Int,
     title: String,
     onPreviousClick: () -> Unit,
-    onNextClick: () -> Unit
+    onNextClick: () -> Unit,
+    onGetTheLookClick: () -> Unit
 ){
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -52,6 +53,7 @@ fun CuratedLookSection(
     }
     CuratedLookCard(
         imageRes = imageRes,
-        title = title
+        title = title,
+        onGetTheLookClick = onGetTheLookClick
     )
     }

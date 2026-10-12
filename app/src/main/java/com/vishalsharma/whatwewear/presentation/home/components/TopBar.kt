@@ -14,7 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun HomeTopBar(
@@ -40,7 +44,13 @@ fun HomeTopBar(
 
         Text(
             text = "WWW",
-            style = MaterialTheme.typography.displaySmall
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.Bold,
+                fontSize = 40.sp,
+                letterSpacing = 1.sp
+            ),
+            color = Color(0xFF211B18)
         )
 
         IconButton(

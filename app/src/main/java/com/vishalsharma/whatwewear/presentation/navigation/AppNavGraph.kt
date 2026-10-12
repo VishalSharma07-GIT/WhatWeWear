@@ -109,13 +109,21 @@ fun AppNavGraph() {
 
         }
         composable(NavRoutes.Home) {
-
             MainAppScaffold(
                 navController = navController
             ) {
-                HomeScreen()
+                HomeScreen(
+                    onAddClothingClick = {
+                        navController.navigate(NavRoutes.AddClothing)
+                    },
+                    onPlannerClick = {
+                        navController.navigate(NavRoutes.Planner)
+                    },
+                    onStudioClick = {
+                        navController.navigate(NavRoutes.Studio)
+                    }
+                )
             }
-
         }
 
         composable(NavRoutes.Wardrobe) {

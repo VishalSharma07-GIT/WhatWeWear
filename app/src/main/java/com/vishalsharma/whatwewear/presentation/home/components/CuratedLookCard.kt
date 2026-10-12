@@ -69,7 +69,7 @@ fun CuratedLookCard(
                 )
             ) {
                 Text(
-                    text = "GET THE LOOK"
+                    text = "VIEW IN STUDIO"
                 )
             }
         }
