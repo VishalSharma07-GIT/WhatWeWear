@@ -1,0 +1,110 @@
+
+package com.vishalsharma.whatwewear.presentation.insights
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun ColorDistributionRow(
+    colorName: String,
+    count: Int,
+    total: Int
+) {
+    val fraction = if (total > 0) {
+        (count.toFloat() / total).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = Color(0xFFF7F2EC)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .background(
+                                color = colorForName(colorName),
+                                shape = CircleShape
+                            )
+                    )
+
+                    Text(
+                        text = colorName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color(0xFF211B18)
+                    )
+                }
+
+                Text(
+                    text = count.toString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color(0xFF211B18)
+                )
+            }
+
+            LinearProgressIndicator(
+                progress = { fraction },
+                modifier = Modifier.fillMaxWidth(),
+                color = Color(0xFFB8906D),
+                trackColor = Color(0xFFE7DDD3)
+            )
+
+            Text(
+                text = "${(fraction * 100).toInt()}% of recorded color entries",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF89827B)
+            )
+        }
+    }
+}
+
+private fun colorForName(name: String): Color {
+    return when (name.trim().lowercase()) {
+        "black" -> Color(0xFF222222)
+        "white" -> Color(0xFFFFFFFF)
+        "red" -> Color(0xFFC62828)
+        "blue", "navy" -> Color(0xFF315A85)
+        "green" -> Color(0xFF638568)
+        "yellow" -> Color(0xFFE5C64B)
+        "pink" -> Color(0xFFE7A5B5)
+        "purple" -> Color(0xFF8C70A8)
+        "brown" -> Color(0xFF8B5E3C)
+        "beige", "cream" -> Color(0xFFE5D5B8)
+        "grey", "gray" -> Color(0xFF9E9E9E)
+        "orange" -> Color(0xFFE58A36)
+        "unspecified" -> Color(0xFFBDB5AB)
+        else -> Color(0xFFB8906D)
+    }
+}

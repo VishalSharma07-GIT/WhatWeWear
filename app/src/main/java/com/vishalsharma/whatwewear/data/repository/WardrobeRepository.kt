@@ -11,20 +11,27 @@ class WardrobeRepository @Inject constructor(
     private val auth: FirebaseAuth
 ) {
 
+
     suspend fun addClothing(
         clothing: ClothingDto
     ) {
         val userId = auth.currentUser?.uid
             ?: throw IllegalStateException("User is not logged in")
 
+        val clothingWithTimestamp = clothing.copy(
+            createdAt = System.currentTimeMillis()
+        )
+
         firestore
             .collection("users")
             .document(userId)
             .collection("clothing")
             .document(clothing.id)
-            .set(clothing)
+            .set(clothingWithTimestamp)
             .await()
     }
+
+
 
     suspend fun updateClothing(
         clothing: ClothingDto
@@ -32,17 +39,37 @@ class WardrobeRepository @Inject constructor(
         val userId = auth.currentUser?.uid
             ?: throw IllegalStateException("User is not logged in")
 
-        firestore
+        val clothingCollection = firestore
             .collection("users")
             .document(userId)
             .collection("clothing")
+
+        val existingDocument = clothingCollection
             .document(clothing.id)
-            .set(clothing)
+            .get()
+            .await()
+
+        val existingCreatedAt = existingDocument
+            .toObject(ClothingDto::class.java)
+            ?.createdAt ?: 0L
+
+        val clothingWithTimestamp = clothing.copy(
+            createdAt = if (existingCreatedAt > 0L) {
+                existingCreatedAt
+            } else {
+                System.currentTimeMillis()
+            }
+        )
+
+        clothingCollection
+            .document(clothing.id)
+            .set(clothingWithTimestamp)
             .await()
     }
 
-    suspend fun getClothing(): List<ClothingDto> {
 
+
+    suspend fun getClothing(): List<ClothingDto> {
         val userId = auth.currentUser?.uid
             ?: throw IllegalStateException("User is not logged in")
 
@@ -55,9 +82,10 @@ class WardrobeRepository @Inject constructor(
             .documents
             .mapNotNull { document ->
                 document.toObject(ClothingDto::class.java)
-
             }
+            .sortedByDescending { it.createdAt }
     }
+
 
     suspend fun deleteClothing(clothingId: String){
         val userId= auth.currentUser?.uid ?: throw IllegalStateException("User is not logged in")

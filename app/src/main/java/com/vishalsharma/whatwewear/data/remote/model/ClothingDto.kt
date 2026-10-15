@@ -9,5 +9,6 @@ data class ClothingDto(
     val size: String = "",
     val imageUrl: String = "",
     val season: String = "",
-    val occasion: String = ""
+    val occasion: String = "",
+    val createdAt: Long = 0L
 )

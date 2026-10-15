@@ -16,6 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,6 +32,8 @@ import com.vishalsharma.whatwewear.presentation.home.components.CuratedLookSecti
 import com.vishalsharma.whatwewear.presentation.home.components.HomeActionCards
 import com.vishalsharma.whatwewear.presentation.home.components.HomeTopBar
 import com.vishalsharma.whatwewear.presentation.home.components.ProTipCard
+import com.vishalsharma.whatwewear.presentation.home.components.RecentlyDigitizedSection
+import com.vishalsharma.whatwewear.presentation.home.components.StyleAnalyticsCard
 import com.vishalsharma.whatwewear.presentation.home.components.StyleAssistantButton
 import com.vishalsharma.whatwewear.presentation.home.components.SustainabilityCard
 import com.vishalsharma.whatwewear.presentation.home.components.WeatherCard
@@ -36,10 +43,24 @@ fun HomeScreen(
     onAddClothingClick: () -> Unit,
     onPlannerClick: () -> Unit,
     onStudioClick: () -> Unit,
+    onWardrobeClick: () -> Unit,
+    onClothingClick: (String) -> Unit,
+    onInsightsClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
-) {
+)
+ {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(viewModel, lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.refreshClothingItems()
+            kotlinx.coroutines.awaitCancellation()
+        }
+    }
+
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -119,17 +140,24 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+
             Text(
-                text = "Sustainability Score",
+                text = "Style Analytics",
                 style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            SustainabilityCard(
-                score = uiState.sustainabilityScore,
-                message = uiState.sustainabilityMessage
+
+            StyleAnalyticsCard(
+                totalClothes = uiState.totalClothes,
+                totalTops = uiState.totalTops,
+                totalBottoms = uiState.totalBottoms,
+                totalShoes = uiState.totalShoes,
+                onViewInsightsClick = onInsightsClick
             )
+
+
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -138,6 +166,16 @@ fun HomeScreen(
             )
 
             Spacer(modifier = Modifier.height(32.dp))
+
+            RecentlyDigitizedSection(
+                clothes = uiState.recentClothes,
+                onViewAllClick = onWardrobeClick,
+                onItemClick = { clothing ->
+                    onClothingClick(clothing.id)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = "Wardrobe: ${uiState.totalClothes} clothes",
@@ -150,7 +188,7 @@ fun HomeScreen(
 
         StyleAssistantButton(
             onClick = {
-                // TODO: OPEN AI STYLE ASSISTANT
+
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)

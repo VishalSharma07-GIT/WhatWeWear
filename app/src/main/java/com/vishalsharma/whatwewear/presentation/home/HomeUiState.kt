@@ -1,14 +1,14 @@
 package com.vishalsharma.whatwewear.presentation.home
 
-import android.os.Message
-import com.vishalsharma.whatwewear.domain.model.Clothing
+import com.vishalsharma.whatwewear.domain.model.ClothingItem
 
 data class HomeUiState(
     val userName: String = "",
     val greeting: String = "",
     val temperature: String = "",
     val weatherDescription: String = "",
-    val recentClothes: List<Clothing> = emptyList(),
+    val recentClothes: List<ClothingItem> = emptyList(),
+    val colorCounts: Map<String, Int> = emptyMap(),
     val totalClothes: Int = 0,
     val totalTops: Int = 0,
     val totalBottoms: Int = 0,

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.vishalsharma.whatwewear.presentation.insights.InsightsScreen
 
 
 @Composable
@@ -121,6 +122,18 @@ fun AppNavGraph() {
                     },
                     onStudioClick = {
                         navController.navigate(NavRoutes.Studio)
+                    },
+                    onWardrobeClick = {
+                        navController.navigate(NavRoutes.Wardrobe)
+                    },
+                    onClothingClick = { clothingId ->
+                        navController.navigate(
+                            "${NavRoutes.ClothingDetails}/$clothingId"
+                        )
+                    }
+                    ,
+                    onInsightsClick = {
+                        navController.navigate(NavRoutes.Insights)
                     }
                 )
             }
@@ -206,17 +219,19 @@ fun AppNavGraph() {
                 )
             }
         }
-        composable(NavRoutes.AddClothing) {
 
+        composable(NavRoutes.AddClothing) {
             AddClothingScreen(
                 onClothingSaved = { clothingItem ->
-
-                    wardrobeViewModel.addClothing(clothingItem)
-
-                    navController.popBackStack()
+                    wardrobeViewModel.addClothing(clothingItem) { success ->
+                        if (success) {
+                            navController.popBackStack()
+                        }
+                    }
                 }
             )
         }
+
         composable(NavRoutes.Profile) {
 
             MainAppScaffold(
@@ -295,16 +310,13 @@ fun AppNavGraph() {
             }
         }
 
+
         composable(NavRoutes.Insights) {
             MainAppScaffold(navController = navController) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Insights — Coming Soon")
-                }
+                InsightsScreen()
             }
         }
+
 
 
     }

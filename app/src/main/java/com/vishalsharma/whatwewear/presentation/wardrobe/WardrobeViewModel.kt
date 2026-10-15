@@ -61,12 +61,13 @@ class WardrobeViewModel @Inject constructor(
         }
     }
 
-    fun addClothing(item: ClothingItem) {
 
+    fun addClothing(
+        item: ClothingItem,
+        onResult: (Boolean) -> Unit
+    ) {
         viewModelScope.launch {
-
             try {
-
                 val clothingDto = ClothingDto(
                     id = item.id,
                     name = item.name,
@@ -79,23 +80,28 @@ class WardrobeViewModel @Inject constructor(
 
                 wardrobeRepository.addClothing(clothingDto)
 
-                _clothingItems.value += item
+                _clothingItems.value = _clothingItems.value
+                    .filterNot { it.id == item.id } + item
 
                 Log.d(
                     "WardrobeFirebase",
                     "Clothing saved successfully: ${item.name}"
                 )
 
-            } catch (e: Exception) {
+                onResult(true)
 
+            } catch (e: Exception) {
                 Log.e(
                     "WardrobeFirebase",
                     "Failed to save clothing",
                     e
                 )
+
+                onResult(false)
             }
         }
     }
+
     fun updateClothing(item: ClothingItem) {
 
         viewModelScope.launch {
