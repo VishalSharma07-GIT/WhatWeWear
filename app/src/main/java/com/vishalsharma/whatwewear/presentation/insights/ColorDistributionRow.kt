@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -33,14 +34,16 @@ fun ColorDistributionRow(
         0f
     }
 
+    val percentage = (fraction * 100).toInt()
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(20.dp),
         color = Color(0xFFF7F2EC)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -48,43 +51,52 @@ fun ColorDistributionRow(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
+                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(30.dp)
                             .background(
                                 color = colorForName(colorName),
                                 shape = CircleShape
                             )
                     )
 
-                    Text(
-                        text = colorName,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFF211B18)
-                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Text(
+                            text = colorName,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color(0xFF211B18)
+                        )
+
+                        Text(
+                            text = if (count == 1) "1 item" else "$count items",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFF89827B)
+                        )
+                    }
                 }
 
                 Text(
-                    text = count.toString(),
+                    text = "$percentage%",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFF211B18)
+                    color = Color(0xFFB8906D)
                 )
             }
 
             LinearProgressIndicator(
                 progress = { fraction },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
                 color = Color(0xFFB8906D),
-                trackColor = Color(0xFFE7DDD3)
-            )
-
-            Text(
-                text = "${(fraction * 100).toInt()}% of recorded color entries",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFF89827B)
+                trackColor = Color(0xFFE7DDD3),
+                gapSize = 0.dp,
+                drawStopIndicator = {}
             )
         }
     }

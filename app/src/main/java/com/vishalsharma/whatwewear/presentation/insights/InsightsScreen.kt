@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.sp
 import com.vishalsharma.whatwewear.presentation.home.HomeViewModel
 
 @Composable
@@ -38,13 +39,20 @@ fun InsightsScreen(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         Text(
-            text = "Your Style Insights",
+            text = "YOUR PERSONAL WARDROBE",
+            style = MaterialTheme.typography.labelMedium,
+            color = Color(0xFFB8906D),
+            letterSpacing = 2.sp
+        )
+
+        Text(
+            text = "Style Insights",
             style = MaterialTheme.typography.headlineLarge,
             color = Color(0xFF211B18)
         )
 
         Text(
-            text = "A clearer picture of what you own.",
+            text = "Understand your collection and discover your style.",
             style = MaterialTheme.typography.bodyLarge,
             color = Color(0xFF89827B)
         )
@@ -56,24 +64,35 @@ fun InsightsScreen(
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "TOTAL WARDROBE",
+                    text = "YOUR COLLECTION",
                     style = MaterialTheme.typography.labelMedium,
-                    color = Color(0xFF89827B)
+                    color = Color(0xFF89827B),
+                    letterSpacing = 1.5.sp
                 )
 
                 Text(
                     text = "${uiState.totalClothes}",
-                    style = MaterialTheme.typography.displayMedium,
+                    style = MaterialTheme.typography.displayLarge,
                     color = Color(0xFF211B18)
                 )
 
                 Text(
-                    text = "Clothing items in your collection",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = if (uiState.totalClothes == 1) {
+                        "Piece in your wardrobe"
+                    } else {
+                        "Pieces in your wardrobe"
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
                     color = Color(0xFF625950)
+                )
+
+                Text(
+                    text = "Every piece tells your story.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFFB8906D)
                 )
             }
         }
@@ -117,7 +136,7 @@ fun InsightsScreen(
 
 
         Text(
-            text = "Next, we'll add color distribution and insights based on the clothes you actually own.",
+            text = "Your wardrobe, your colors, your personal style all in one place.",
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF89827B)
         )
@@ -125,6 +144,7 @@ fun InsightsScreen(
         Spacer(modifier = Modifier.height(12.dp))
     }
 }
+
 
 @Composable
 private fun CategoryRow(
@@ -138,34 +158,53 @@ private fun CategoryRow(
         0f
     }
 
+    val percentage = (fraction * 100).toInt()
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(20.dp),
         color = Color(0xFFF7F2EC)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(label, style = MaterialTheme.typography.titleMedium)
-                Text("$count", style = MaterialTheme.typography.titleMedium)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color(0xFF211B18)
+                    )
+
+                    Text(
+                        text = if (count == 1) "1 item" else "$count items",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF89827B)
+                    )
+                }
+
+                Text(
+                    text = "$percentage%",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color(0xFFB8906D)
+                )
             }
 
             androidx.compose.material3.LinearProgressIndicator(
                 progress = { fraction },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
                 color = Color(0xFFB8906D),
-                trackColor = Color(0xFFE7DDD3)
-            )
-
-            Text(
-                text = "${(fraction * 100).toInt()}% of your wardrobe",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFF89827B)
+                trackColor = Color(0xFFE7DDD3),
+                gapSize = 0.dp,
+                drawStopIndicator = {}
             )
         }
     }
