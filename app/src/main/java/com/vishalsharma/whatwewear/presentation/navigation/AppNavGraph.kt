@@ -25,12 +25,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.vishalsharma.whatwewear.presentation.insights.InsightsScreen
+import com.vishalsharma.whatwewear.presentation.planner.CreateOutfitScreen
+import com.vishalsharma.whatwewear.presentation.planner.EditOutfitScreen
+import com.vishalsharma.whatwewear.presentation.planner.OutfitPlannerScreen
+import com.vishalsharma.whatwewear.presentation.planner.OutfitPlannerViewModel
 
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
     val wardrobeViewModel: WardrobeViewModel = hiltViewModel()
+    val outfitPlannerViewModel: OutfitPlannerViewModel = hiltViewModel()
     NavHost(
         navController = navController,
         startDestination = NavRoutes.Splash
@@ -299,13 +304,119 @@ fun AppNavGraph() {
             }
         }
 
+
         composable(NavRoutes.Planner) {
+//            val outfitPlannerViewModel: OutfitPlannerViewModel =
+//                hiltViewModel()
+
+            val outfits by outfitPlannerViewModel.outfits
+                .collectAsStateWithLifecycle()
+            val clothingItems by wardrobeViewModel.clothingItems
+                .collectAsStateWithLifecycle()
+
             MainAppScaffold(navController = navController) {
+                OutfitPlannerScreen(
+                    outfits = outfits,
+                    clothingItems=clothingItems,
+                    onCreateOutfitClick = {
+                        navController.navigate(NavRoutes.CreateOutfit)
+                    },
+                    onDeleteOutfit = { outfitId ->
+                        outfitPlannerViewModel.deleteOutfit(outfitId)
+                    },
+                    onMarkAsWorn = { outfitId, isWorn ->
+                        outfitPlannerViewModel.markOutfitAsWorn(
+                            outfitId,
+                            isWorn
+                        )
+                    }
+                    ,
+                    onEditClick = { outfit ->
+                        navController.navigate(
+                            "${NavRoutes.EditOutfit}/${outfit.id}"
+                        )
+                    }
+                )
+            }
+        }
+
+
+        composable(NavRoutes.CreateOutfit) {
+            val clothingItems by wardrobeViewModel.clothingItems
+                .collectAsStateWithLifecycle()
+
+//            val outfitPlannerViewModel: OutfitPlannerViewModel =
+//                hiltViewModel()
+
+            val isSaving by outfitPlannerViewModel.isSaving
+                .collectAsStateWithLifecycle()
+
+            val errorMessage by outfitPlannerViewModel.errorMessage
+                .collectAsStateWithLifecycle()
+
+            CreateOutfitScreen(
+                clothingItems = clothingItems,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onSaveClick = { name, occasion, clothingIds, date ->
+                    outfitPlannerViewModel.saveOutfit(
+                        name = name,
+                        occasion = occasion,
+                        clothingIds = clothingIds,
+                        plannedDate = date
+                    ) { success ->
+                        if (success) {
+                            navController.popBackStack()
+                        }
+                    }
+                }
+            )
+
+            errorMessage?.let { message ->
+                androidx.compose.material3.Text(
+                    text = message,
+                    color = androidx.compose.ui.graphics.Color.Red
+                )
+            }
+        }
+
+        composable(
+            route = "${NavRoutes.EditOutfit}/{outfitId}"
+        ) { backStackEntry ->
+
+            val outfitId = backStackEntry.arguments
+                ?.getString("outfitId")
+
+            val outfits by outfitPlannerViewModel.outfits
+                .collectAsStateWithLifecycle()
+
+            val clothingItems by wardrobeViewModel.clothingItems
+                .collectAsStateWithLifecycle()
+
+            val outfit = outfits.find { it.id == outfitId }
+
+            if (outfit != null) {
+                EditOutfitScreen(
+                    outfit = outfit,
+                    clothingItems = clothingItems,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onUpdateClick = { updatedOutfit ->
+                        outfitPlannerViewModel.updateOutfit(updatedOutfit) { success ->
+                            if (success) {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                )
+            } else {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Planner — Coming Soon")
+                    Text("Loading outfit...")
                 }
             }
         }

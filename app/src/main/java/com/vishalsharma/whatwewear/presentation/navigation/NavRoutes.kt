@@ -27,6 +27,10 @@ object NavRoutes {
     const val Inspire = "inspire"
     const val Planner = "planner"
     const val Insights = "insights"
+
+    const val CreateOutfit = "create_outfit"
+
+    const val EditOutfit = "edit_outfit"
 }
 
 // we have created the object because there should only be one list of routes in the app
