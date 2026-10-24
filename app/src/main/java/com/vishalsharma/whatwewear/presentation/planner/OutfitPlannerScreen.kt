@@ -19,7 +19,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Checkroom
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,7 +35,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,6 +70,10 @@ fun OutfitPlannerScreen(
 ) {
 
     val context = LocalContext.current
+
+    var outfitToDelete by remember {
+        mutableStateOf<OutfitDto?>(null)
+    }
 
     Column(
         modifier = Modifier
@@ -272,7 +288,7 @@ fun OutfitPlannerScreen(
 
                                 OutlinedButton(
                                     onClick = {
-                                        onDeleteOutfit(outfit.id)
+                                        outfitToDelete = outfit
                                     },
                                     modifier = Modifier.weight(1f)
                                 ) {
@@ -316,4 +332,44 @@ fun OutfitPlannerScreen(
             )
         }
     }
+
+    outfitToDelete?.let { outfit ->
+        AlertDialog(
+            onDismissRequest = {
+                outfitToDelete = null
+            },
+            title = {
+                Text("Delete outfit?")
+            },
+            text = {
+                Text(
+                    "Are you sure you want to delete \"${outfit.name}\"? " +
+                            "This action cannot be undone."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDeleteOutfit(outfit.id)
+                        outfitToDelete = null
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        outfitToDelete = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            },
+            containerColor = Color.White,
+            titleContentColor = PlannerText,
+            textContentColor = PlannerMuted
+        )
+    }
+
 }

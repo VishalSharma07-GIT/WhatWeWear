@@ -1,24 +1,36 @@
 
 package com.vishalsharma.whatwewear.presentation.home.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddAPhoto
+import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+
+private val ActionText = Color(0xFF211B18)
+private val ActionMuted = Color(0xFF655B57)
+private val DigitizeBackground = Color(0xFFF0E4DF)
+private val PlannerBackground = Color(0xFFEAE7E2)
+private val ActionAccent = Color(0xFF59423C)
 
 @Composable
 fun HomeActionCards(
@@ -31,30 +43,34 @@ fun HomeActionCards(
     ) {
         ActionCard(
             title = "Digitize",
-            subtitle = "Add to wardrobe",
-            backgroundColor = Color(0xFFF0E3D8),
+            subtitle = "Add new pieces to your wardrobe.",
+            actionLabel = "ADD ITEM",
+            backgroundColor = DigitizeBackground,
             onClick = onDigitizeClick,
             modifier = Modifier.weight(1f),
             icon = {
                 Icon(
                     imageVector = Icons.Outlined.AddAPhoto,
-                    contentDescription = "Digitize clothing",
-                    tint = Color(0xFF6F5964)
+                    contentDescription = null,
+                    modifier = Modifier.size(27.dp),
+                    tint = ActionAccent
                 )
             }
         )
 
         ActionCard(
             title = "Planner",
-            subtitle = "Plan your looks",
-            backgroundColor = Color(0xFFE8E6F0),
+            subtitle = "Plan your looks for the week.",
+            actionLabel = "VIEW PLAN",
+            backgroundColor = PlannerBackground,
             onClick = onPlannerClick,
             modifier = Modifier.weight(1f),
             icon = {
                 Icon(
                     imageVector = Icons.Outlined.CalendarMonth,
-                    contentDescription = "Outfit planner",
-                    tint = Color(0xFF6F5964)
+                    contentDescription = null,
+                    modifier = Modifier.size(27.dp),
+                    tint = ActionAccent
                 )
             }
         )
@@ -65,17 +81,21 @@ fun HomeActionCards(
 private fun ActionCard(
     title: String,
     subtitle: String,
+    actionLabel: String,
     backgroundColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: @Composable () -> Unit
 ) {
-    androidx.compose.material3.Card(
+    Card(
         onClick = onClick,
-        modifier = modifier.height(142.dp),
+        modifier = modifier.height(190.dp),
         shape = RoundedCornerShape(24.dp),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
+        colors = CardDefaults.cardColors(
             containerColor = backgroundColor
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp
         )
     ) {
         Column(
@@ -88,15 +108,38 @@ private fun ActionCard(
 
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFF211B18)
+                style = MaterialTheme.typography.titleLarge,
+                color = ActionText,
+                fontWeight = FontWeight.Medium
             )
 
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFF6F5964)
+                color = ActionMuted,
+                minLines = 2
             )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                Text(
+                    text = actionLabel,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = ActionText
+                )
+
+                Icon(
+                    imageVector = Icons.Outlined.ArrowOutward,
+                    contentDescription = null,
+                    modifier = Modifier.size(15.dp),
+                    tint = ActionText
+                )
+            }
         }
     }
 }

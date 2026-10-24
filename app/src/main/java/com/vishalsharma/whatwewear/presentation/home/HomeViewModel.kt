@@ -10,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.vishalsharma.whatwewear.data.mapper.toDomain
 import com.vishalsharma.whatwewear.data.repository.WardrobeRepository
 import kotlinx.coroutines.launch
-
+import com.vishalsharma.whatwewear.data.remote.weather.WeatherService
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -23,6 +23,7 @@ class HomeViewModel @Inject constructor(
     init {
         loadHomeData()
         loadClothingItems()
+        loadWeather()
     }
 
 
@@ -41,6 +42,20 @@ class HomeViewModel @Inject constructor(
             currentLookTitle = "Casual Weekend"
         )
     }
+    private fun loadWeather() {
+        viewModelScope.launch {
+            try {
+                val weather = WeatherService.getCurrentWeather()
+
+                _uiState.value = _uiState.value.copy(
+                    temperature = weather.temperature,
+                    weatherDescription = weather.description
+                )
+            } catch (e: Exception) {
+
+            }
+        }
+    }
 
     private fun getGreeting(): String {
         return when (java.time.LocalTime.now().hour) {
@@ -51,22 +66,52 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun selectLook(index: Int) {
 
+
+    fun selectLook(index: Int) {
         val looks = listOf(
             "Casual Weekend",
             "Smart Casual",
             "Evening Style"
         )
 
-        if (index in looks.indices) {
+        if (index !in looks.indices) return
 
-            _uiState.value = _uiState.value.copy(
-                currentLookIndex = index,
-                currentLookTitle = looks[index]
-            )
+        val allClothes = _uiState.value.allClothes
+
+        val matchingItems = when (index) {
+            0 -> allClothes.filter {
+                it.occasion.contains("casual", ignoreCase = true) ||
+                        it.season.contains("spring", ignoreCase = true) ||
+                        it.season.contains("summer", ignoreCase = true)
+            }
+
+            1 -> allClothes.filter {
+                it.occasion.contains("smart", ignoreCase = true) ||
+                        it.occasion.contains("formal", ignoreCase = true) ||
+                        it.occasion.contains("office", ignoreCase = true)
+            }
+
+            2 -> allClothes.filter {
+                it.occasion.contains("evening", ignoreCase = true) ||
+                        it.occasion.contains("party", ignoreCase = true) ||
+                        it.occasion.contains("date", ignoreCase = true)
+            }
+
+            else -> emptyList()
         }
+
+        val selectedItems = (matchingItems.ifEmpty { allClothes })
+            .take(3)
+
+        _uiState.value = _uiState.value.copy(
+            currentLookIndex = index,
+            currentLookTitle = looks[index],
+            currentLookItems = selectedItems
+        )
     }
+
+
 
     private fun loadClothingItems() {
         viewModelScope.launch {
@@ -81,6 +126,7 @@ class HomeViewModel @Inject constructor(
                     .toSortedMap()
 
                 _uiState.value = _uiState.value.copy(
+                    allClothes = clothingItems,
                     totalClothes = clothingItems.size,
 
                     totalTops = clothingItems.count {

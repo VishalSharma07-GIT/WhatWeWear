@@ -78,23 +78,30 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = "YOUR PERSONAL STYLE, REIMAGINED",
-                style = MaterialTheme.typography.labelLarge,
-                color = Color(0xFF89827B),
-                letterSpacing = 1.5.sp
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "${uiState.greeting}, ${uiState.userName}.",
-                style = MaterialTheme.typography.headlineMedium.copy(
+                text = "${uiState.greeting},\n${uiState.userName}",
+                style = MaterialTheme.typography.displayMedium.copy(
                     fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 35.sp,
+                    lineHeight = 48.sp,
+                    letterSpacing = (-1).sp
                 ),
                 color = Color(0xFF211B18)
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Curating your elegance for the day ahead.",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp
+                ),
+                color = Color(0xFF77736F)
+            )
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -121,21 +128,16 @@ fun HomeScreen(
 
             CuratedLookSection(
                 currentIndex = uiState.currentLookIndex,
-                totalLooks = 2,
-                imageRes = R.drawable.onboarding1,
+                totalLooks = 3,
                 title = uiState.currentLookTitle,
+                clothingItems = uiState.currentLookItems,
                 onPreviousClick = {
-                    viewModel.selectLook(
-                        uiState.currentLookIndex - 1
-                    )
+                    viewModel.selectLook(uiState.currentLookIndex - 1)
                 },
                 onNextClick = {
-                    viewModel.selectLook(
-                        uiState.currentLookIndex + 1
-                    )
+                    viewModel.selectLook(uiState.currentLookIndex + 1)
                 },
                 onGetTheLookClick = onStudioClick
-
             )
 
             Spacer(modifier = Modifier.height(32.dp))
