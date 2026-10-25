@@ -27,6 +27,7 @@ fun CuratedLookSection(
     clothingItems: List<ClothingItem>,
     onPreviousClick: () -> Unit,
     onNextClick: () -> Unit,
+    onCardClick: () -> Unit,
     onGetTheLookClick: () -> Unit
 ) {
     Row(
@@ -68,6 +69,7 @@ fun CuratedLookSection(
     CuratedLookCard(
         title = title,
         clothingItems = clothingItems,
+        onCardClick = onCardClick,
         onGetTheLookClick = onGetTheLookClick
     )
 }

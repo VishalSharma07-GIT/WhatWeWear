@@ -42,9 +42,11 @@ private val LookBrown = Color(0xFF59423C)
 fun CuratedLookCard(
     title: String,
     clothingItems: List<ClothingItem>,
+    onCardClick: () -> Unit = {},
     onGetTheLookClick: () -> Unit = {}
 ) {
     Card(
+        onClick = onCardClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(

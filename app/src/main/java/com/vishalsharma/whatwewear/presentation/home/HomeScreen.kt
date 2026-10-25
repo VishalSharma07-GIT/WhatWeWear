@@ -137,18 +137,19 @@ fun HomeScreen(
                 onNextClick = {
                     viewModel.selectLook(uiState.currentLookIndex + 1)
                 },
+                onCardClick = onStudioClick,
                 onGetTheLookClick = onStudioClick
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
 
-            Text(
-                text = "Style Analytics",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
+//            Text(
+//                text = "Style Analytics",
+//                style = MaterialTheme.typography.headlineMedium
+//            )
+//
+//            Spacer(modifier = Modifier.height(16.dp))
 
 
             StyleAnalyticsCard(
@@ -156,6 +157,7 @@ fun HomeScreen(
                 totalTops = uiState.totalTops,
                 totalBottoms = uiState.totalBottoms,
                 totalShoes = uiState.totalShoes,
+                clothingItems = uiState.allClothes,
                 onViewInsightsClick = onInsightsClick
             )
 

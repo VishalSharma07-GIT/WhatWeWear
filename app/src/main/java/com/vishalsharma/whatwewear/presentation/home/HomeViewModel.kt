@@ -11,6 +11,7 @@ import com.vishalsharma.whatwewear.data.mapper.toDomain
 import com.vishalsharma.whatwewear.data.repository.WardrobeRepository
 import kotlinx.coroutines.launch
 import com.vishalsharma.whatwewear.data.remote.weather.WeatherService
+import com.vishalsharma.whatwewear.domain.model.ClothingItem
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -68,6 +69,141 @@ class HomeViewModel @Inject constructor(
 
 
 
+    private fun getItemsForLook(
+        index: Int,
+        allClothes: List<ClothingItem>
+    ): List<ClothingItem> {
+
+        if (index !in 0..2 || allClothes.isEmpty()) {
+            return emptyList()
+        }
+
+        val occasionKeywords = when (index) {
+            0 -> listOf("casual", "weekend", "everyday")
+            1 -> listOf("smart", "formal", "office")
+            else -> listOf("evening", "party", "date")
+        }
+
+        fun matchesOccasion(item: ClothingItem): Boolean {
+            return occasionKeywords.any { keyword ->
+                item.occasion.contains(keyword, ignoreCase = true)
+            }
+        }
+
+        // Match keywords against both the category and item name.
+        fun matchesItem(
+            item: ClothingItem,
+            keywords: List<String>
+        ): Boolean {
+            return keywords.any { keyword ->
+                item.category.contains(keyword, ignoreCase = true) ||
+                        item.name.contains(keyword, ignoreCase = true)
+            }
+        }
+
+        // Choose different items for different looks whenever possible.
+        fun pickItem(
+            candidates: List<ClothingItem>
+        ): ClothingItem? {
+
+            val pool = candidates
+                .distinctBy { it.id }
+                .sortedBy { it.id }
+
+            if (pool.isEmpty()) return null
+
+            val occasionMatches = pool.filter { matchesOccasion(it) }
+            val available = occasionMatches.ifEmpty { pool }
+
+            return available[index % available.size]
+        }
+
+        val tops = allClothes.filter {
+            matchesItem(
+                it,
+                listOf(
+                    "top", "shirt", "t-shirt", "tshirt",
+                    "tee", "blouse", "polo", "sweater",
+                    "hoodie", "sweatshirt", "kurta"
+                )
+            )
+        }
+
+        val bottoms = allClothes.filter {
+            matchesItem(
+                it,
+                listOf(
+                    "bottom", "jeans", "trouser", "pants",
+                    "shorts", "skirt", "leggings", "chinos"
+                )
+            )
+        }
+
+        val shoes = allClothes.filter {
+            matchesItem(
+                it,
+                listOf(
+                    "shoe", "sneaker", "boot", "sandal",
+                    "footwear", "loafer", "heels"
+                )
+            )
+        }
+
+        val dresses = allClothes.filter {
+            matchesItem(
+                it,
+                listOf("dress", "jumpsuit", "romper")
+            )
+        }
+
+        val accessories = allClothes.filter {
+            matchesItem(
+                it,
+                listOf(
+                    "accessory", "accessories",
+                    "watch", "jewelry", "jewellery",
+                    "belt", "bag", "sunglasses",
+                    "hat", "cap", "scarf",
+                    "bracelet", "necklace", "ring", "wallet"
+                )
+            )
+        }
+
+        val outfit = mutableListOf<ClothingItem>()
+
+        // Prefer a dress; otherwise combine a top and bottom.
+        val dress = pickItem(dresses)
+
+        if (dress != null) {
+            outfit.add(dress)
+        } else {
+            val top = pickItem(tops)
+            val bottom = pickItem(bottoms)
+
+            if (top != null) outfit.add(top)
+            if (bottom != null) outfit.add(bottom)
+        }
+
+        // Add shoes if available.
+        val shoe = pickItem(shoes)
+
+        if (shoe != null && outfit.none { it.id == shoe.id }) {
+            outfit.add(shoe)
+        }
+
+        // Add an accessory, such as a watch, if available.
+        val accessory = pickItem(
+            accessories.filter { candidate ->
+                outfit.none { it.id == candidate.id }
+            }
+        )
+
+        if (accessory != null) {
+            outfit.add(accessory)
+        }
+
+        return outfit.distinctBy { it.id }
+    }
     fun selectLook(index: Int) {
         val looks = listOf(
             "Casual Weekend",
@@ -79,38 +215,12 @@ class HomeViewModel @Inject constructor(
 
         val allClothes = _uiState.value.allClothes
 
-        val matchingItems = when (index) {
-            0 -> allClothes.filter {
-                it.occasion.contains("casual", ignoreCase = true) ||
-                        it.season.contains("spring", ignoreCase = true) ||
-                        it.season.contains("summer", ignoreCase = true)
-            }
-
-            1 -> allClothes.filter {
-                it.occasion.contains("smart", ignoreCase = true) ||
-                        it.occasion.contains("formal", ignoreCase = true) ||
-                        it.occasion.contains("office", ignoreCase = true)
-            }
-
-            2 -> allClothes.filter {
-                it.occasion.contains("evening", ignoreCase = true) ||
-                        it.occasion.contains("party", ignoreCase = true) ||
-                        it.occasion.contains("date", ignoreCase = true)
-            }
-
-            else -> emptyList()
-        }
-
-        val selectedItems = (matchingItems.ifEmpty { allClothes })
-            .take(3)
-
         _uiState.value = _uiState.value.copy(
             currentLookIndex = index,
             currentLookTitle = looks[index],
-            currentLookItems = selectedItems
+            currentLookItems = getItemsForLook(index, allClothes)
         )
     }
-
 
 
     private fun loadClothingItems() {
@@ -143,7 +253,11 @@ class HomeViewModel @Inject constructor(
 
                     recentClothes = clothingItems.take(4),
                     error = null,
-                    colorCounts = colorCounts
+                    colorCounts = colorCounts,
+                    currentLookItems = getItemsForLook(
+                        _uiState.value.currentLookIndex,
+                        clothingItems
+                    )
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
