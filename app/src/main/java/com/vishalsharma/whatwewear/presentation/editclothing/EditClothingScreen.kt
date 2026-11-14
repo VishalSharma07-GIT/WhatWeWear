@@ -1,415 +1,211 @@
 package com.vishalsharma.whatwewear.presentation.editclothing
 
+import android.graphics.Bitmap
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.vishalsharma.whatwewear.domain.model.ClothingItem
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import coil.compose.rememberAsyncImagePainter
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.vishalsharma.whatwewear.domain.model.ClothingItem
+import com.vishalsharma.whatwewear.presentation.components.AppTextField
+import com.vishalsharma.whatwewear.presentation.components.ChipGroup
+import com.vishalsharma.whatwewear.presentation.components.ClothingOptions
+import com.vishalsharma.whatwewear.presentation.components.ColorSwatchPicker
+import com.vishalsharma.whatwewear.presentation.components.EditPhotoButton
+import com.vishalsharma.whatwewear.presentation.components.ImageEditorDialog
+import com.vishalsharma.whatwewear.utils.ImageCompressor
+import com.vishalsharma.whatwewear.utils.rememberImageModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+private val Ivory = Color(0xFFFAF7F2)
+private val Ink = Color(0xFF211B18)
+private val Brown = Color(0xFF59423C)
 
 @Composable
 fun EditClothingScreen(
     clothingItem: ClothingItem,
-    onClothingUpdated: (ClothingItem) -> Unit = {}
+    onClothingUpdated: (ClothingItem) -> Unit = {},
+    onBackClick: () -> Unit = {}
 ) {
-
-    var clothingName by remember {
-        mutableStateOf(clothingItem.name)
-    }
-
-    var brand by remember {
-        mutableStateOf(clothingItem.brand)
-    }
-
-    var category by remember {
-        mutableStateOf(clothingItem.category)
-    }
-
-    var color by remember {
-        mutableStateOf(clothingItem.color)
-    }
-
-    var size by remember {
-        mutableStateOf(clothingItem.size)
-    }
-    var categoryExpanded by remember {
-        mutableStateOf(false)
-    }
-
-    var colorExpanded by remember {
-        mutableStateOf(false)
-    }
-
-    var sizeExpanded by remember {
-        mutableStateOf(false)
-    }
-    var season by remember {
-        mutableStateOf(clothingItem.season)
-    }
-
-    var seasonExpanded by remember {
-        mutableStateOf(false)
-    }
-
-    var occasion by remember {
-        mutableStateOf(clothingItem.occasion)
-    }
-
-    var occasionExpanded by remember {
-        mutableStateOf(false)
-    }
-    val categories = listOf(
-        "Tops",
-        "Bottoms",
-        "Dresses",
-        "Outerwear",
-        "Shoes",
-        "Accessories"
-    )
-
-    val colors = listOf(
-        "Black",
-        "White",
-        "Blue",
-        "Grey",
-        "Brown",
-        "Green",
-        "Red",
-        "Other"
-    )
-
-    val sizes = listOf(
-        "XS",
-        "S",
-        "M",
-        "L",
-        "XL",
-        "XXL"
-    )
+    var name by rememberSaveable { mutableStateOf(clothingItem.name) }
+    var brand by rememberSaveable { mutableStateOf(clothingItem.brand) }
+    var category by rememberSaveable { mutableStateOf(clothingItem.category) }
+    var color by rememberSaveable { mutableStateOf(clothingItem.color) }
+    var size by rememberSaveable { mutableStateOf(clothingItem.size) }
+    var season by rememberSaveable { mutableStateOf(clothingItem.season) }
+    var occasion by rememberSaveable { mutableStateOf(clothingItem.occasion) }
+    // not rememberSaveable: the saved photo can be a large piece of text
+    var imageUri by remember { mutableStateOf(clothingItem.imageUri) }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
-    var selectedImageUri by remember {
-        mutableStateOf(
-            clothingItem.imageUri?.let { Uri.parse(it) }
-        )
-    }
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri ->
+    var editSource by remember { mutableStateOf<Bitmap?>(null) }
 
-        uri?.let {
-
-            val contentResolver = context.contentResolver
-
-            contentResolver.takePersistableUriPermission(
-                it,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-
-            selectedImageUri = it
-        }
-    }
+    val photoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri -> uri?.let { imageUri = it.toString() } }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .background(Ivory)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .imePadding()
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp, top = 4.dp, end = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Ink)
+            }
+            Text(
+                text = "Edit piece",
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.Medium
+                ),
+                color = Ink
+            )
+        }
 
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(22.dp)
+        ) {
+            Box {
+                AsyncImage(
+                    model = rememberImageModel(imageUri),
+                    contentDescription = name,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(240.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(Color(0xFFF2EBE4))
+                        .padding(12.dp)
+                )
+                EditPhotoButton(
+                    onClick = {
+                        imageUri?.let { src ->
+                            scope.launch {
+                                editSource = withContext(Dispatchers.IO) {
+                                    runCatching { ImageCompressor.toBitmap(context, src) }.getOrNull()
+                                }
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                )
+            }
 
-        Text(
-            text = "Edit Clothing"
-        )
-        selectedImageUri?.let { uri ->
+            TextButton(
+                onClick = {
+                    photoPicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) { Text("Choose a new photo") }
 
-            Image(
-                painter = rememberAsyncImagePainter(uri),
-                contentDescription = clothingItem.name,
+            AppTextField(value = name, onValueChange = { name = it }, label = "Name")
+            AppTextField(value = brand, onValueChange = { brand = it }, label = "Brand")
+
+            ChipGroup("Category", ClothingOptions.categories, category) { category = it }
+            ColorSwatchPicker("Color", ClothingOptions.colors, color) { color = it }
+            ChipGroup("Size", ClothingOptions.sizes, size, allowClear = true) { size = it }
+            ChipGroup("Season", ClothingOptions.seasons, season, allowClear = true) { season = it }
+            ChipGroup("Occasion", ClothingOptions.occasions, occasion, allowClear = true) { occasion = it }
+
+            Button(
+                enabled = category.isNotBlank(),
+                onClick = {
+                    onClothingUpdated(
+                        clothingItem.copy(
+                            name = name.ifBlank { clothingItem.name },
+                            brand = brand,
+                            category = category,
+                            color = color,
+                            size = size,
+                            season = season,
+                            occasion = occasion,
+                            imageUri = imageUri
+                        )
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
-                    .clip(
-                        RoundedCornerShape(16.dp)
-                    ),
-                contentScale = ContentScale.Crop
-            )
+                    .height(52.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Brown, contentColor = Color.White)
+            ) { Text("Save changes") }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
-        Button(
-            onClick = {
-                imagePickerLauncher.launch(
-                    arrayOf("image/*")
-                )
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Choose New Image")
-        }
+    }
 
-        OutlinedTextField(
-            value = clothingName,
-            onValueChange = {
-                clothingName = it
-            },
-            label = {
-                Text("Clothing Name")
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        OutlinedTextField(
-            value = brand,
-            onValueChange = {
-                brand = it
-            },
-            label = {
-                Text("Brand")
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-
-            OutlinedTextField(
-                value = category,
-                onValueChange = {},
-                readOnly = true,
-                label = {
-                    Text("Category")
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable {
-                        categoryExpanded = true
+    editSource?.let { bitmap ->
+        ImageEditorDialog(
+            source = bitmap,
+            onDismiss = { editSource = null },
+            onDone = { edited ->
+                editSource = null
+                scope.launch {
+                    imageUri = withContext(Dispatchers.Default) {
+                        ImageCompressor.bitmapToDataUri(edited)
                     }
-            )
-
-            DropdownMenu(
-                expanded = categoryExpanded,
-                onDismissRequest = {
-                    categoryExpanded = false
-                }
-            ) {
-                categories.forEach { option ->
-
-                    DropdownMenuItem(
-                        text = {
-                            Text(option)
-                        },
-                        onClick = {
-                            category = option
-                            categoryExpanded = false
-                        }
-                    )
                 }
             }
-        }
-
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-
-            OutlinedTextField(
-                value = color,
-                onValueChange = {},
-                readOnly = true,
-                label = {
-                    Text("Color")
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable {
-                        colorExpanded = true
-                    }
-            )
-
-            DropdownMenu(
-                expanded = colorExpanded,
-                onDismissRequest = {
-                    colorExpanded = false
-                }
-            ) {
-                colors.forEach { option ->
-
-                    DropdownMenuItem(
-                        text = {
-                            Text(option)
-                        },
-                        onClick = {
-                            color = option
-                            colorExpanded = false
-                        }
-                    )
-                }
-            }
-        }
-
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-
-            OutlinedTextField(
-                value = size,
-                onValueChange = {},
-                readOnly = true,
-                label = {
-                    Text("Size")
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable {
-                        sizeExpanded = true
-                    }
-            )
-
-            DropdownMenu(
-                expanded = sizeExpanded,
-                onDismissRequest = {
-                    sizeExpanded = false
-                }
-            ) {
-                sizes.forEach { option ->
-
-                    DropdownMenuItem(
-                        text = {
-                            Text(option)
-                        },
-                        onClick = {
-                            size = option
-                            sizeExpanded = false
-                        }
-                    )
-                }
-            }
-        }
-
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = season,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Season") },
-                trailingIcon = { Text("▼") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable { seasonExpanded = true }
-            )
-
-            DropdownMenu(
-                expanded = seasonExpanded,
-                onDismissRequest = { seasonExpanded = false }
-            ) {
-                listOf("Spring", "Summer", "Autumn", "Winter").forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            season = option
-                            seasonExpanded = false
-                        }
-                    )
-                }
-            }
-        }
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = occasion,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Occasion") },
-                trailingIcon = { Text("▼") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable { occasionExpanded = true }
-            )
-
-            DropdownMenu(
-                expanded = occasionExpanded,
-                onDismissRequest = { occasionExpanded = false }
-            ) {
-                listOf("Casual", "Formal", "Party", "Work", "Sports").forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            occasion = option
-                            occasionExpanded = false
-                        }
-                    )
-                }
-            }
-        }
-        Spacer(
-            modifier = Modifier.height(8.dp)
         )
-
-
-        Button(
-            onClick = {
-
-                val updatedItem = clothingItem.copy(
-                    name = clothingName,
-                    brand = brand,
-                    category = category,
-                    color = color,
-                    size = size,
-                    season = season,
-                    occasion = occasion,
-                    imageUri = selectedImageUri?.toString()
-                )
-
-                onClothingUpdated(updatedItem)
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Save Changes")
-        }
     }
 }

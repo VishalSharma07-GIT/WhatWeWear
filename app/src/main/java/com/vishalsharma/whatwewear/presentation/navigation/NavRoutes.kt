@@ -1,36 +1,20 @@
 package com.vishalsharma.whatwewear.presentation.navigation
 
+// One list of routes for the whole app, so every screen name lives in one place
 object NavRoutes {
 
+    // Start and login flow
     const val Splash = "splash"
-
     const val Onboarding = "onboarding"
-    const val EditClothing = "edit_clothing"
-
     const val Login = "login"
-
+    const val Signup = "signup"
     const val ForgotPassword = "forgot_password"
 
-    const val Signup = "signup"
+    // Main app
     const val Home = "home"
-
     const val Wardrobe = "wardrobe"
-
     const val AddClothing = "add_clothing"
-
     const val ClothingDetails = "clothing_details"
-
+    const val EditClothing = "edit_clothing"
     const val Profile = "profile"
-
-    const val Settings = "settings"
-    const val Studio = "studio"
-    const val Inspire = "inspire"
-    const val Planner = "planner"
-    const val Insights = "insights"
-
-    const val CreateOutfit = "create_outfit"
-
-    const val EditOutfit = "edit_outfit"
 }
-
-// we have created the object because there should only be one list of routes in the app

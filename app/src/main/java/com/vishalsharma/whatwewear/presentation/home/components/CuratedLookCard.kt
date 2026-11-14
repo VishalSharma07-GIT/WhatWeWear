@@ -1,21 +1,16 @@
-
 package com.vishalsharma.whatwewear.presentation.home.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowOutward
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -32,26 +27,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
+import com.vishalsharma.whatwewear.utils.rememberImageModel
 
 private val LookBackground = Color(0xFFFFFAF7)
 private val LookText = Color(0xFF211B18)
 private val LookMuted = Color(0xFF77736F)
-private val LookBrown = Color(0xFF59423C)
 
 @Composable
 fun CuratedLookCard(
     title: String,
     clothingItems: List<ClothingItem>,
     onCardClick: () -> Unit = {},
-    onGetTheLookClick: () -> Unit = {}
+    onGetTheLookClick: () -> Unit = {} // kept so other files still compile; not used in V0
 ) {
     Card(
         onClick = onCardClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = LookBackground
-        ),
+        colors = CardDefaults.cardColors(containerColor = LookBackground),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
@@ -94,25 +87,22 @@ fun CuratedLookCard(
                     )
                 }
             } else {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        items = clothingItems,
-                        key = { it.id }
-                    ) { clothing ->
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(items = clothingItems, key = { it.id }) { clothing ->
                         Column(
                             modifier = Modifier.padding(bottom = 4.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             AsyncImage(
-                                model = clothing.imageUri ?: clothing.imageRes,
+                                model = rememberImageModel(clothing.imageUri) ?: clothing.imageRes,
                                 contentDescription = clothing.name,
-                                contentScale = ContentScale.Crop,
+                                contentScale = ContentScale.Fit,
                                 modifier = Modifier
-                                    .height(190.dp)
+                                    .width(140.dp)
+                                    .height(180.dp)
                                     .clip(RoundedCornerShape(18.dp))
                                     .background(Color(0xFFF0E8E2))
+                                    .padding(6.dp)
                             )
 
                             Text(
@@ -120,7 +110,8 @@ fun CuratedLookCard(
                                 color = LookText,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium,
-                                maxLines = 1
+                                maxLines = 1,
+                                modifier = Modifier.width(140.dp)
                             )
 
                             Text(
@@ -138,31 +129,6 @@ fun CuratedLookCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = LookMuted
             )
-
-            Button(
-                onClick = onGetTheLookClick,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LookBrown,
-                    contentColor = Color.White
-                )
-            ) {
-                Row(
-                    modifier = Modifier.padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "VIEW IN STUDIO",
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    androidx.compose.material3.Icon(
-                        imageVector = Icons.Outlined.ArrowOutward,
-                        contentDescription = null
-                    )
-                }
-            }
         }
     }
 }

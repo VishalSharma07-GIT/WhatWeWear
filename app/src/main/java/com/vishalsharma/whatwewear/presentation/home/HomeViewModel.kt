@@ -10,12 +10,13 @@ import androidx.lifecycle.viewModelScope
 import com.vishalsharma.whatwewear.data.mapper.toDomain
 import com.vishalsharma.whatwewear.data.repository.WardrobeRepository
 import kotlinx.coroutines.launch
-import com.vishalsharma.whatwewear.data.remote.weather.WeatherService
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
+import com.google.firebase.auth.FirebaseAuth
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val wardrobeRepository: WardrobeRepository
+    private val wardrobeRepository: WardrobeRepository,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private val _uiState= MutableStateFlow(HomeUiState())
@@ -24,13 +25,12 @@ class HomeViewModel @Inject constructor(
     init {
         loadHomeData()
         loadClothingItems()
-        loadWeather()
     }
 
 
     private fun loadHomeData() {
         _uiState.value = HomeUiState(
-            userName = "Vishal",
+            userName = getUserName(),
             greeting = getGreeting(),
             temperature = "31°C",
             weatherDescription = "Perfect day to dress up",
@@ -42,20 +42,6 @@ class HomeViewModel @Inject constructor(
             currentLookIndex = 0,
             currentLookTitle = "Casual Weekend"
         )
-    }
-    private fun loadWeather() {
-        viewModelScope.launch {
-            try {
-                val weather = WeatherService.getCurrentWeather()
-
-                _uiState.value = _uiState.value.copy(
-                    temperature = weather.temperature,
-                    weatherDescription = weather.description
-                )
-            } catch (e: Exception) {
-
-            }
-        }
     }
 
     private fun getGreeting(): String {
@@ -269,6 +255,15 @@ class HomeViewModel @Inject constructor(
 
     fun refreshClothingItems() {
         loadClothingItems()
+    }
+
+    private fun getUserName(): String {
+        val user = auth.currentUser
+        val fromName = user?.displayName?.trim()?.substringBefore(" ").orEmpty()
+        val fromEmail = user?.email?.substringBefore("@").orEmpty()
+        return fromName
+            .ifBlank { fromEmail.replaceFirstChar { it.uppercase() } }
+            .ifBlank { "there" }
     }
 }
 

@@ -31,6 +31,7 @@ import coil.request.ImageRequest
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
+import com.vishalsharma.whatwewear.utils.rememberImageModel
 
 @Composable
 fun ClothingCard(
@@ -64,7 +65,7 @@ fun ClothingCard(
                     !item.imageUri.isNullOrBlank() -> {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
-                                .data(item.imageUri)
+                                .data(rememberImageModel(item.imageUri))
                                 .crossfade(true)
                                 .build(),
                             contentDescription = item.name,

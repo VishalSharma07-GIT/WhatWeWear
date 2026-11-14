@@ -10,5 +10,7 @@ data class ClothingItem(
     val color: String = "",
     val size: String = "",
     val season: String = "",
-    val occasion: String = ""
+    val occasion: String = "",
+    val type: String = "",        // new: from AI later
+    val createdAt: Long = 0L      // new: keeps the date on edit
 )

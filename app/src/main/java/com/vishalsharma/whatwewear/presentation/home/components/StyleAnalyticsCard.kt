@@ -1,8 +1,6 @@
 package com.vishalsharma.whatwewear.presentation.home.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,28 +9,34 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import androidx.compose.ui.unit.sp
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
 
 private val AnalyticsBackground = Color(0xFFF7EEE8)
 private val AnalyticsText = Color(0xFF211B18)
 private val AnalyticsMuted = Color(0xFF817A73)
-private val AnalyticsAccent = Color(0xFFB8906D)
+
+// One soft tone per category, from dark to light
+private val categoryTones = listOf(
+    "Tops" to Color(0xFF59423C),
+    "Bottoms" to Color(0xFFB8906D),
+    "Shoes" to Color(0xFF8C6E5D),
+    "Dresses" to Color(0xFFD9C3AE),
+    "Outerwear" to Color(0xFFC9A98C),
+    "Accessories" to Color(0xFFE5D6C8)
+)
 
 @Composable
 fun StyleAnalyticsCard(
@@ -40,171 +44,100 @@ fun StyleAnalyticsCard(
     totalTops: Int,
     totalBottoms: Int,
     totalShoes: Int,
-    clothingItems: List<ClothingItem>,
-    onViewInsightsClick: () -> Unit
+    clothingItems: List<ClothingItem>
 ) {
+    val counts = categoryTones.map { (name, tone) ->
+        Triple(
+            name,
+            tone,
+            clothingItems.count { it.category.equals(name, ignoreCase = true) }
+        )
+    }.filter { it.third > 0 }
+
+    val topCategory = counts.maxByOrNull { it.third }?.first
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
         color = AnalyticsBackground
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
+        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 28.dp)) {
             Text(
-                text = "Style Analytics",
-                style = MaterialTheme.typography.headlineSmall,
-                color = AnalyticsText
-            )
-
-            Text(
-                text = "Your wardrobe at a glance",
-                style = MaterialTheme.typography.bodyLarge,
+                text = "STYLE ANALYTICS",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    letterSpacing = 2.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
                 color = AnalyticsMuted
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = totalClothes.toString(),
-                        style = MaterialTheme.typography.displayMedium,
-                        color = AnalyticsText
-                    )
+            Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(
-                        text = "Pieces in your wardrobe",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = AnalyticsMuted
-                    )
-                }
-
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color(0xFFE8EEDC)
-                ) {
-                    Text(
-                        text = "$totalClothes PIECES",
-                        modifier = Modifier.padding(
-                            horizontal = 12.dp,
-                            vertical = 8.dp
-                        ),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color(0xFF68705D)
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                CategoryCount("Tops", totalTops)
-                CategoryCount("Bottoms", totalBottoms)
-                CategoryCount("Shoes", totalShoes)
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "YOUR WARDROBE EDIT",
-                style = MaterialTheme.typography.labelMedium,
-                color = AnalyticsMuted
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                clothingItems
-                    .distinctBy { it.id }
-                    .take(3)
-                    .forEach { item ->
-                        ClothingThumbnail(item = item)
-                    }
-            }
-
-            TextButton(
-                onClick = onViewInsightsClick
-            ) {
+            Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = "EXPLORE INSIGHTS  →",
-                    color = AnalyticsAccent
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ClothingThumbnail(item: ClothingItem) {
-    Box(
-        modifier = Modifier
-            .size(76.dp)
-            .clip(CircleShape)
-            .background(Color(0xFFE9DED4))
-            .border(1.dp, Color(0xFFD9C9BC), CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        when {
-            !item.imageUri.isNullOrBlank() -> {
-                AsyncImage(
-                    model = item.imageUri,
-                    contentDescription = item.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(76.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            item.imageRes != null -> {
-                Image(
-                    painter = androidx.compose.ui.res.painterResource(
-                        id = item.imageRes
+                    text = totalClothes.toString(),
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 64.sp,
+                        lineHeight = 68.sp
                     ),
-                    contentDescription = item.name,
-                    modifier = Modifier.size(76.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            else -> {
-                Text(
-                    text = item.name.take(1).uppercase(),
-                    style = MaterialTheme.typography.titleLarge,
                     color = AnalyticsText
                 )
+                Text(
+                    text = if (totalClothes == 1) "piece" else "pieces",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontFamily = FontFamily.Serif
+                    ),
+                    color = AnalyticsMuted,
+                    modifier = Modifier.padding(start = 10.dp, bottom = 12.dp)
+                )
+            }
+
+            Text(
+                text = "in your wardrobe",
+                style = MaterialTheme.typography.bodyMedium,
+                color = AnalyticsMuted
+            )
+
+            if (counts.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // One thin bar: each color is a category, sized by how much of it you own
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    counts.forEach { (_, tone, count) ->
+                        Box(
+                            modifier = Modifier
+                                .weight(count.toFloat())
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(tone)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Your wardrobe leans towards ${topCategory?.lowercase()}.",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Serif
+                    ),
+                    color = AnalyticsText
+                )
+            } else {
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Add your first piece to see your style at a glance.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = AnalyticsMuted
+                )
             }
         }
-    }
-}
-
-@Composable
-private fun CategoryCount(
-    label: String,
-    count: Int
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(
-            text = count.toString(),
-            style = MaterialTheme.typography.titleLarge,
-            color = AnalyticsText
-        )
-
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = AnalyticsMuted
-        )
     }
 }

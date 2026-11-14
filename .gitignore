@@ -16,3 +16,9 @@ captures/
 
 # macOS
 .DS_Store
+# Secrets and signing keys
+app/google-services.json
+*.jks
+*.keystore
+keystore.properties
+local.properties

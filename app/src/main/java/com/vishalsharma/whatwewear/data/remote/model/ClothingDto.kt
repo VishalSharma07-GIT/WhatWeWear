@@ -5,6 +5,7 @@ data class ClothingDto(
     val name: String = "",
     val brand: String = "",
     val category: String = "",
+    val type: String = "",
     val color: String = "",
     val size: String = "",
     val imageUrl: String = "",

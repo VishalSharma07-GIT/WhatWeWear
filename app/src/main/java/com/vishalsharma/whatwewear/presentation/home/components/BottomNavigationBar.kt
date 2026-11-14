@@ -1,24 +1,31 @@
-package com.vishalsharma.whatwewear.presentation.navigation.components
+package com.vishalsharma.whatwewear.presentation.home.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Checkroom
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Insights
-import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -29,83 +36,80 @@ private val Ivory = Color(0xFFFAF7F2)
 private val AccentBrown = Color(0xFFB8906D)
 private val MutedBrown = Color(0xFF89827B)
 
-private data class BottomNavItem(
-    val route: String,
-    val label: String,
-    val icon: ImageVector
-)
-
 @Composable
 fun BottomNavigationBar(
     currentRoute: String?,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
+    onAddClick: () -> Unit
 ) {
-    val items = listOf(
-        BottomNavItem(
-            route = NavRoutes.Wardrobe,
-            label = "Wardrobe",
-            icon = Icons.Outlined.Checkroom
-        ),
-        BottomNavItem(
-            route = NavRoutes.Studio,
-            label = "Studio",
-            icon = Icons.Outlined.AutoAwesome
-        ),
-        BottomNavItem(
-            route = NavRoutes.Inspire,
-            label = "Inspire",
-            icon = Icons.Outlined.FavoriteBorder
-        ),
-        BottomNavItem(
-            route = NavRoutes.Planner,
-            label = "Planner",
-            icon = Icons.Outlined.CalendarMonth
-        ),
-        BottomNavItem(
-            route = NavRoutes.Insights,
-            label = "Insights",
-            icon = Icons.Outlined.Insights
-        )
-    )
-
-    NavigationBar(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(92.dp),
-        containerColor = Ivory,
-        contentColor = MutedBrown,
-        tonalElevation = 0.dp
+            .background(Ivory)
+            .navigationBarsPadding()
+            .height(72.dp)
     ) {
-        items.forEach { item ->
-            val selected = currentRoute == item.route
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            NavItem(
+                label = "Home",
+                icon = Icons.Outlined.Home,
+                selected = currentRoute == NavRoutes.Home,
+                onClick = { onItemClick(NavRoutes.Home) },
+                modifier = Modifier.weight(1f)
+            )
 
-            NavigationBarItem(
-                selected = selected,
-                onClick = {
-                    onItemClick(item.route)
-                },
-                icon = {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.label
-                    )
-                },
-                label = {
-                    Text(
-                        text = item.label,
-                        fontSize = 11.sp,
-                        maxLines = 1,
-                        letterSpacing = 0.2.sp
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = AccentBrown,
-                    selectedTextColor = AccentBrown,
-                    unselectedIconColor = MutedBrown,
-                    unselectedTextColor = MutedBrown,
-                    indicatorColor = Color(0xFFF0E3D8)
-                )
+            Spacer(modifier = Modifier.weight(1f)) // room for the center button
+
+            NavItem(
+                label = "Closet",
+                icon = Icons.Outlined.Checkroom,
+                selected = currentRoute == NavRoutes.Wardrobe,
+                onClick = { onItemClick(NavRoutes.Wardrobe) },
+                modifier = Modifier.weight(1f)
             )
         }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = (-22).dp)
+                .size(60.dp)
+                .shadow(8.dp, CircleShape)
+                .clip(CircleShape)
+                .background(AccentBrown)
+                .clickable(onClick = onAddClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Add,
+                contentDescription = "Add clothing",
+                tint = Color.White,
+                modifier = Modifier.size(30.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun NavItem(
+    label: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val color = if (selected) AccentBrown else MutedBrown
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(imageVector = icon, contentDescription = label, tint = color)
+        Text(text = label, fontSize = 11.sp, color = color, maxLines = 1)
     }
 }

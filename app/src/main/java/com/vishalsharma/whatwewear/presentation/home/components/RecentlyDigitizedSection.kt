@@ -12,16 +12,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.vishalsharma.whatwewear.utils.rememberImageModel
 import coil.compose.AsyncImage
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
 
@@ -41,13 +42,15 @@ fun RecentlyDigitizedSection(
         ) {
             Text(
                 text = "Recently Digitized",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color(0xFF493D35)
             )
 
             Text(
                 text = "VIEW ALL",
-                color = MaterialTheme.colorScheme.primary,
+                color = Color(0xFF96765F),
                 style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .clickable(onClick = onViewAllClick)
                     .padding(4.dp)
@@ -68,29 +71,30 @@ fun RecentlyDigitizedSection(
                     items = clothes,
                     key = { it.id }
                 ) { clothing ->
+
                     Column(
                         modifier = Modifier
                             .fillParentMaxWidth(0.46f)
                             .clickable { onItemClick(clothing) }
                     ) {
                         AsyncImage(
-                            model = clothing.imageUri,
+                            model = rememberImageModel(clothing.imageUri) ?: clothing.imageRes,
                             contentDescription = clothing.name,
                             contentScale = ContentScale.Fit,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(190.dp)
                                 .clip(RoundedCornerShape(20.dp))
-                                .background(
-                                    MaterialTheme.colorScheme.surfaceVariant
-                                )
+                                .background(Color(0xFFF2EBE4))
                                 .padding(8.dp)
                         )
 
                         Text(
-                            text = clothing.brand.ifBlank { "UNBRANDED" }
+                            text = clothing.brand
+                                .ifBlank { "UNBRANDED" }
                                 .uppercase(),
                             style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF96765F),
                             modifier = Modifier.padding(top = 12.dp),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -99,6 +103,7 @@ fun RecentlyDigitizedSection(
                         Text(
                             text = clothing.name,
                             style = MaterialTheme.typography.titleMedium,
+                            color = Color(0xFF493D35),
                             modifier = Modifier.padding(top = 4.dp),
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
