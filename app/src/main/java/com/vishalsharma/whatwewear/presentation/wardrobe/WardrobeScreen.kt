@@ -3,6 +3,7 @@ package com.vishalsharma.whatwewear.presentation.wardrobe
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,11 +21,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +53,9 @@ private val Brown = Color(0xFF59423C)
 @Composable
 fun WardrobeScreen(
     clothingItems: List<ClothingItem>,
+    isLoading: Boolean = false,
+    loadError: Boolean = false,
+    onRetry: () -> Unit = {},
     onAddClothingClick: () -> Unit = {},
     onClothingClick: (String) -> Unit = {}
 ) {
@@ -141,6 +147,27 @@ fun WardrobeScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         when {
+            isLoading -> Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 48.dp),
+                contentAlignment = Alignment.TopCenter
+            ) { CircularProgressIndicator(color = Brown) }
+
+            loadError -> Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 48.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Couldn't load your closet.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Muted
+                )
+                TextButton(onClick = onRetry) { Text("Try again") }
+            }
+
             clothingItems.isEmpty() -> EmptyWardrobeState(onAddClothingClick = onAddClothingClick)
 
             filtered.isEmpty() -> Text(

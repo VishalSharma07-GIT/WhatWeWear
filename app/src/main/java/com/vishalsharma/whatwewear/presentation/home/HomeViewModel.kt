@@ -12,6 +12,7 @@ import com.vishalsharma.whatwewear.data.repository.WardrobeRepository
 import kotlinx.coroutines.launch
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.flow.catch
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -211,51 +212,41 @@ class HomeViewModel @Inject constructor(
 
     private fun loadClothingItems() {
         viewModelScope.launch {
-            try {
-                val clothingItems = wardrobeRepository.getClothing()
-                    .map { it.toDomain() }
-
-                val colorCounts = clothingItems
-                    .map { it.color.trim().ifBlank { "Unspecified" } }
-                    .groupingBy { it }
-                    .eachCount()
-                    .toSortedMap()
-
-                _uiState.value = _uiState.value.copy(
-                    allClothes = clothingItems,
-                    totalClothes = clothingItems.size,
-
-                    totalTops = clothingItems.count {
-                        it.category.equals("Tops", ignoreCase = true)
-                    },
-
-                    totalBottoms = clothingItems.count {
-                        it.category.equals("Bottoms", ignoreCase = true)
-                    },
-
-                    totalShoes = clothingItems.count {
-                        it.category.equals("Shoes", ignoreCase = true)
-                    },
-
-                    recentClothes = clothingItems.take(4),
-                    error = null,
-                    colorCounts = colorCounts,
-                    currentLookItems = getItemsForLook(
-                        _uiState.value.currentLookIndex,
-                        clothingItems
+            wardrobeRepository.observeClothing()
+                .catch { e ->
+                    _uiState.value = _uiState.value.copy(
+                        error = e.message ?: "Unable to load wardrobe items"
                     )
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message ?: "Unable to load wardrobe items"
-                )
-            }
+                }
+                .collect { dtos ->
+                    val clothingItems = dtos.map { it.toDomain() }
+
+                    val colorCounts = clothingItems
+                        .map { it.color.trim().ifBlank { "Unspecified" } }
+                        .groupingBy { it }
+                        .eachCount()
+                        .toSortedMap()
+
+                    _uiState.value = _uiState.value.copy(
+                        allClothes = clothingItems,
+                        totalClothes = clothingItems.size,
+                        totalTops = clothingItems.count { it.category.equals("Tops", ignoreCase = true) },
+                        totalBottoms = clothingItems.count { it.category.equals("Bottoms", ignoreCase = true) },
+                        totalShoes = clothingItems.count { it.category.equals("Shoes", ignoreCase = true) },
+                        recentClothes = clothingItems.take(4),
+                        error = null,
+                        colorCounts = colorCounts,
+                        currentLookItems = getItemsForLook(
+                            _uiState.value.currentLookIndex,
+                            clothingItems
+                        )
+                    )
+                }
         }
     }
 
-    fun refreshClothingItems() {
-        loadClothingItems()
-    }
+    // Home now updates live, so there is nothing to refresh. Kept so HomeScreen still compiles.
+    fun refreshClothingItems() {}
 
     private fun getUserName(): String {
         val user = auth.currentUser

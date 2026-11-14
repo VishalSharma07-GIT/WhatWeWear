@@ -111,6 +111,8 @@ fun AppNavGraph() {
 
         composable(NavRoutes.Wardrobe) {
             val clothingItems by wardrobeViewModel.clothingItems.collectAsStateWithLifecycle()
+            val isLoading by wardrobeViewModel.isLoading.collectAsStateWithLifecycle()
+            val loadError by wardrobeViewModel.loadError.collectAsStateWithLifecycle()
 
             MainAppScaffold(
                 navController = navController,
@@ -118,6 +120,9 @@ fun AppNavGraph() {
             ) {
                 WardrobeScreen(
                     clothingItems = clothingItems,
+                    isLoading = isLoading,
+                    loadError = loadError,
+                    onRetry = { wardrobeViewModel.retry() },
                     onAddClothingClick = { showCamera = true },
                     onClothingClick = { clothingId ->
                         navController.navigate("${NavRoutes.ClothingDetails}/$clothingId")

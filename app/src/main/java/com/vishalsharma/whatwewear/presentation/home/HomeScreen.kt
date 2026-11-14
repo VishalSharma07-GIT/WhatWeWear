@@ -102,6 +102,14 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         DigitizeCard(onClick = onAddClothingClick)
+        uiState.error?.let {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Couldn't load your wardrobe right now.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -196,7 +204,8 @@ private fun HomeHeader(
 }
 
 @Composable
-private fun DigitizeCard(onClick: () -> Unit) {
+private fun DigitizeCard(onClick: () -> Unit)
+{
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
