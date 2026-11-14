@@ -6,13 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -42,53 +39,53 @@ fun BottomNavigationBar(
     onItemClick: (String) -> Unit,
     onAddClick: () -> Unit
 ) {
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(Ivory)
             .navigationBarsPadding()
-            .height(72.dp)
+            .height(72.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            NavItem(
-                label = "Home",
-                icon = Icons.Outlined.Home,
-                selected = currentRoute == NavRoutes.Home,
-                onClick = { onItemClick(NavRoutes.Home) },
-                modifier = Modifier.weight(1f)
-            )
+        NavItem(
+            label = "Home",
+            icon = Icons.Outlined.Home,
+            selected = currentRoute == NavRoutes.Home,
+            onClick = { onItemClick(NavRoutes.Home) },
+            modifier = Modifier.weight(1f)
+        )
 
-            Spacer(modifier = Modifier.weight(1f)) // room for the center button
+        NavItem(
+            label = "Closet",
+            icon = Icons.Outlined.Checkroom,
+            selected = currentRoute == NavRoutes.Wardrobe,
+            onClick = { onItemClick(NavRoutes.Wardrobe) },
+            modifier = Modifier.weight(1f)
+        )
 
-            NavItem(
-                label = "Closet",
-                icon = Icons.Outlined.Checkroom,
-                selected = currentRoute == NavRoutes.Wardrobe,
-                onClick = { onItemClick(NavRoutes.Wardrobe) },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
+        // Add button, in the third slot
         Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(y = (-22).dp)
-                .size(60.dp)
-                .shadow(8.dp, CircleShape)
-                .clip(CircleShape)
-                .background(AccentBrown)
-                .clickable(onClick = onAddClick),
+                .weight(1f)
+                .fillMaxHeight(),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Add,
-                contentDescription = "Add clothing",
-                tint = Color.White,
-                modifier = Modifier.size(30.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .shadow(6.dp, CircleShape)
+                    .clip(CircleShape)
+                    .background(AccentBrown)
+                    .clickable(onClick = onAddClick),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Add,
+                    contentDescription = "Add clothing",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         }
     }
 }
