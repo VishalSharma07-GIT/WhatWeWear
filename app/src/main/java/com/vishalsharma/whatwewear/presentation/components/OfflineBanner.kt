@@ -60,7 +60,7 @@ fun OfflineBanner() {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF59423C))
+                .background(Color(0xFF1B1B1B))
                 .statusBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         )

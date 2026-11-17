@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,8 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,15 +50,16 @@ import com.vishalsharma.whatwewear.presentation.components.ClothingOptions
 import com.vishalsharma.whatwewear.presentation.components.ColorSwatchPicker
 import com.vishalsharma.whatwewear.presentation.components.EditPhotoButton
 import com.vishalsharma.whatwewear.presentation.components.ImageEditorDialog
+import com.vishalsharma.whatwewear.presentation.components.PinnedActionBar
+import com.vishalsharma.whatwewear.presentation.components.PrimaryActionButton
 import com.vishalsharma.whatwewear.utils.ImageCompressor
 import com.vishalsharma.whatwewear.utils.rememberImageModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private val Ivory = Color(0xFFFAF7F2)
+private val Ivory = Color(0xFFF4F0EB)
 private val Ink = Color(0xFF211B18)
-private val Brown = Color(0xFF59423C)
 
 @Composable
 fun EditClothingScreen(
@@ -78,6 +76,7 @@ fun EditClothingScreen(
     var occasion by rememberSaveable { mutableStateOf(clothingItem.occasion) }
     // not rememberSaveable: the saved photo can be a large piece of text
     var imageUri by remember { mutableStateOf(clothingItem.imageUri) }
+    var isSaving by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -114,83 +113,87 @@ fun EditClothingScreen(
             )
         }
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(22.dp)
-        ) {
-            Box {
-                AsyncImage(
-                    model = rememberImageModel(imageUri),
-                    contentDescription = name,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(240.dp)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(Color(0xFFF2EBE4))
-                        .padding(12.dp)
-                )
-                EditPhotoButton(
-                    onClick = {
-                        imageUri?.let { src ->
-                            scope.launch {
-                                editSource = withContext(Dispatchers.IO) {
-                                    runCatching { ImageCompressor.toBitmap(context, src) }.getOrNull()
+        Box(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(start = 20.dp, top = 8.dp, end = 20.dp, bottom = 130.dp),
+                verticalArrangement = Arrangement.spacedBy(22.dp)
+            ) {
+                Box {
+                    AsyncImage(
+                        model = rememberImageModel(imageUri),
+                        contentDescription = name,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(240.dp)
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(Color(0xFFF2EBE4))
+                            .padding(12.dp)
+                    )
+                    EditPhotoButton(
+                        onClick = {
+                            imageUri?.let { src ->
+                                scope.launch {
+                                    editSource = withContext(Dispatchers.IO) {
+                                        runCatching { ImageCompressor.toBitmap(context, src) }.getOrNull()
+                                    }
                                 }
                             }
-                        }
+                        },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(10.dp)
+                    )
+                }
+
+                TextButton(
+                    onClick = {
+                        photoPicker.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
                     },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(10.dp)
-                )
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) { Text("Choose a new photo") }
+
+                AppTextField(value = name, onValueChange = { name = it }, label = "Name")
+                AppTextField(value = brand, onValueChange = { brand = it }, label = "Brand")
+
+                ChipGroup("Category", ClothingOptions.categories, category) { category = it }
+                ColorSwatchPicker("Color", ClothingOptions.colors, color) { color = it }
+                ChipGroup("Size", ClothingOptions.sizes, size, allowClear = true) { size = it }
+                ChipGroup("Season", ClothingOptions.seasons, season, allowClear = true) { season = it }
+                ChipGroup("Occasion", ClothingOptions.occasions, occasion, allowClear = true) { occasion = it }
             }
 
-            TextButton(
-                onClick = {
-                    photoPicker.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) { Text("Choose a new photo") }
-
-            AppTextField(value = name, onValueChange = { name = it }, label = "Name")
-            AppTextField(value = brand, onValueChange = { brand = it }, label = "Brand")
-
-            ChipGroup("Category", ClothingOptions.categories, category) { category = it }
-            ColorSwatchPicker("Color", ClothingOptions.colors, color) { color = it }
-            ChipGroup("Size", ClothingOptions.sizes, size, allowClear = true) { size = it }
-            ChipGroup("Season", ClothingOptions.seasons, season, allowClear = true) { season = it }
-            ChipGroup("Occasion", ClothingOptions.occasions, occasion, allowClear = true) { occasion = it }
-
-            Button(
-                enabled = category.isNotBlank(),
-                onClick = {
-                    onClothingUpdated(
-                        clothingItem.copy(
-                            name = name.ifBlank { clothingItem.name },
-                            brand = brand,
-                            category = category,
-                            color = color,
-                            size = size,
-                            season = season,
-                            occasion = occasion,
-                            imageUri = imageUri
+            PinnedActionBar(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                backgroundColor = Ivory
+            ) {
+                PrimaryActionButton(
+                    label = "Save changes",
+                    enabled = category.isNotBlank(),
+                    loading = isSaving,
+                    disabledLabel = "Choose a category",
+                    onClick = {
+                        isSaving = true
+                        onClothingUpdated(
+                            clothingItem.copy(
+                                name = name.ifBlank { clothingItem.name },
+                                brand = brand,
+                                category = category,
+                                color = color,
+                                size = size,
+                                season = season,
+                                occasion = occasion,
+                                imageUri = imageUri
+                            )
                         )
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Brown, contentColor = Color.White)
-            ) { Text("Save changes") }
-
-            Spacer(modifier = Modifier.height(24.dp))
+                    }
+                )
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -53,13 +54,15 @@ import com.vishalsharma.whatwewear.presentation.components.ClothingOptions
 import com.vishalsharma.whatwewear.presentation.components.ColorSwatchPicker
 import com.vishalsharma.whatwewear.presentation.components.EditPhotoButton
 import com.vishalsharma.whatwewear.presentation.components.ImageEditorDialog
+import com.vishalsharma.whatwewear.presentation.components.PinnedActionBar
+import com.vishalsharma.whatwewear.presentation.components.PrimaryActionButton
 import com.vishalsharma.whatwewear.utils.ImageCompressor
 import com.vishalsharma.whatwewear.utils.rememberImageModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private val Brown = Color(0xFF59423C)
+private val Brown = Color(0xFF1B1B1B)
 
 // Makes sure an AI answer matches one of our options
 private fun match(value: String, options: List<String>): String =
@@ -99,6 +102,9 @@ fun AddClothingScreen(
         ?: if (useOriginal) imageUri?.toString() else (cleanImage ?: imageUri?.toString())
     val shownModel = rememberImageModel(shownImage)
 
+    // The Save pill shows once a photo is chosen and the AI is not busy
+    val showActionBar = imageUri != null && state != AnalyzeState.Loading
+
     fun onPhotoReady(uri: Uri) {
         imageUri = uri
         viewModel.analyze(uri)
@@ -135,209 +141,211 @@ fun AddClothingScreen(
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp)
+            .fillMaxSize().background(Color(0xFFF4F0EB))
     ) {
-        Text(
-            text = "Add Clothing",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontFamily = FontFamily.Serif,
-                fontWeight = FontWeight.Medium
-            )
-        )
-        Spacer(Modifier.height(24.dp))
-
-        if (imageUri == null) {
-            // STEP 1: choose photo
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    start = 24.dp,
+                    top = 24.dp,
+                    end = 24.dp,
+                    bottom = if (showActionBar) 130.dp else 24.dp
+                )
+        ) {
             Text(
-                "Take a photo of your clothing and we'll fill in the details for you.",
-                style = MaterialTheme.typography.bodyMedium
+                text = "Add Clothing",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.Medium
+                )
             )
             Spacer(Modifier.height(24.dp))
-            Button(
-                onClick = {
-                    val values = ContentValues().apply {
-                        put(MediaStore.Images.Media.DISPLAY_NAME, "wardrobe_${System.currentTimeMillis()}.jpg")
-                        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                    }
-                    val uri = context.contentResolver.insert(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values
-                    )
-                    if (uri != null) {
-                        cameraUri = uri
-                        cameraLauncher.launch(uri)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Brown, contentColor = Color.White)
-            ) { Text("Take photo") }
-            Spacer(Modifier.height(12.dp))
-            OutlinedButton(
-                onClick = {
-                    galleryLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) { Text("Choose from gallery") }
-        } else {
-            // STEP 2: preview + analyzing + review
-            Box {
-                AsyncImage(
-                    model = shownModel,
-                    contentDescription = "Selected clothing",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(240.dp)
-                        .clip(RoundedCornerShape(16.dp))
+
+            if (imageUri == null) {
+                // STEP 1: choose photo
+                Text(
+                    "Take a photo of your clothing and we'll fill in the details for you.",
+                    style = MaterialTheme.typography.bodyMedium
                 )
-                EditPhotoButton(
+                Spacer(Modifier.height(24.dp))
+                Button(
                     onClick = {
-                        shownImage?.let { src ->
-                            scope.launch {
-                                editSource = withContext(Dispatchers.IO) {
-                                    runCatching { ImageCompressor.toBitmap(context, src) }.getOrNull()
-                                }
-                            }
+                        val values = ContentValues().apply {
+                            put(MediaStore.Images.Media.DISPLAY_NAME, "wardrobe_${System.currentTimeMillis()}.jpg")
+                            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                        }
+                        val uri = context.contentResolver.insert(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values
+                        )
+                        if (uri != null) {
+                            cameraUri = uri
+                            cameraLauncher.launch(uri)
                         }
                     },
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(10.dp)
-                )
-            }
-
-            TextButton(onClick = {
-                editedImage = null
-                useOriginal = false
-                imageUri = null
-                name = ""; brand = ""; category = ""; color = ""
-                size = ""; season = ""; occasion = ""; type = ""
-                saveFailed = false
-                viewModel.reset()
-            }) { Text("Retake / choose another") }
-
-            if (cleanImage != null) {
-                TextButton(onClick = {
-                    editedImage = null
-                    useOriginal = !useOriginal
-                }) {
-                    Text(if (useOriginal) "Use cutout" else "Use original photo")
-                }
-            }
-
-            when (state) {
-                AnalyzeState.Loading -> {
-                    Spacer(Modifier.height(24.dp))
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) { CircularProgressIndicator(color = Brown) }
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        "Analyzing your piece…",
-                        modifier = Modifier.fillMaxWidth(),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-
-                else -> {
-                    if (state == AnalyzeState.Failed) {
-                        Text(
-                            "We couldn't analyze the photo automatically. Please fill in the details.",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyMedium
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Brown, contentColor = Color.White)
+                ) { Text("Take photo") }
+                Spacer(Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = {
+                        galleryLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                         )
-                        TextButton(onClick = { imageUri?.let { viewModel.analyze(it) } }) {
-                            Text("Try again")
-                        }
-                        Spacer(Modifier.height(12.dp))
-                    }
-
-                    AppTextField(value = name, onValueChange = { name = it }, label = "Name")
-                    Spacer(Modifier.height(12.dp))
-                    AppTextField(value = brand, onValueChange = { brand = it }, label = "Brand")
-
-                    Spacer(Modifier.height(24.dp))
-                    ChipGroup("Category", ClothingOptions.categories, category) { category = it }
-
-                    Spacer(Modifier.height(24.dp))
-                    ColorSwatchPicker("Color", ClothingOptions.colors, color) { color = it }
-
-                    TextButton(onClick = { showMore = !showMore }) {
-                        Text(if (showMore) "Hide details" else "More details")
-                    }
-
-                    if (showMore) {
-                        Spacer(Modifier.height(8.dp))
-                        ChipGroup("Size", ClothingOptions.sizes, size, allowClear = true) { size = it }
-                        Spacer(Modifier.height(24.dp))
-                        ChipGroup("Season", ClothingOptions.seasons, season, allowClear = true) { season = it }
-                        Spacer(Modifier.height(24.dp))
-                        ChipGroup("Occasion", ClothingOptions.occasions, occasion, allowClear = true) { occasion = it }
-                    }
-
-                    Spacer(Modifier.height(24.dp))
-                    Button(
-                        enabled = category.isNotBlank() && !isSaving,
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) { Text("Choose from gallery") }
+            } else {
+                // STEP 2: preview + analyzing + review
+                Box {
+                    AsyncImage(
+                        model = shownModel,
+                        contentDescription = "Selected clothing",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(240.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                    )
+                    EditPhotoButton(
                         onClick = {
-                            isSaving = true
-                            saveFailed = false
-                            onClothingSaved(
-                                ClothingItem(
-                                    id = System.currentTimeMillis().toString(),
-                                    name = name.ifBlank { "New piece" },
-                                    brand = brand,
-                                    category = category,
-                                    imageUri = shownImage,
-                                    color = color,
-                                    size = size,
-                                    season = season,
-                                    occasion = occasion,
-                                    type = type
-                                )
-                            ) { success ->
-                                if (!success) {
-                                    isSaving = false
-                                    saveFailed = true
+                            shownImage?.let { src ->
+                                scope.launch {
+                                    editSource = withContext(Dispatchers.IO) {
+                                        runCatching { ImageCompressor.toBitmap(context, src) }.getOrNull()
+                                    }
                                 }
                             }
                         },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Brown, contentColor = Color.White)
-                    ) { Text(if (isSaving) "Saving…" else "Save") }
+                            .align(Alignment.TopEnd)
+                            .padding(10.dp)
+                    )
+                }
 
-                    if (category.isBlank()) {
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            "Choose a category to save.",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                    if (saveFailed) {
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            "Couldn't save. Check your internet and try again.",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                TextButton(onClick = {
+                    editedImage = null
+                    useOriginal = false
+                    imageUri = null
+                    name = ""; brand = ""; category = ""; color = ""
+                    size = ""; season = ""; occasion = ""; type = ""
+                    saveFailed = false
+                    isSaving = false
+                    viewModel.reset()
+                }) { Text("Retake / choose another") }
+
+                if (cleanImage != null) {
+                    TextButton(onClick = {
+                        editedImage = null
+                        useOriginal = !useOriginal
+                    }) {
+                        Text(if (useOriginal) "Use cutout" else "Use original photo")
                     }
                 }
+
+                when (state) {
+                    AnalyzeState.Loading -> {
+                        Spacer(Modifier.height(24.dp))
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) { CircularProgressIndicator(color = Brown) }
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            "Analyzing your piece…",
+                            modifier = Modifier.fillMaxWidth(),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    else -> {
+                        if (state == AnalyzeState.Failed) {
+                            Text(
+                                "We couldn't analyze the photo automatically. Please fill in the details.",
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            TextButton(onClick = { imageUri?.let { viewModel.analyze(it) } }) {
+                                Text("Try again")
+                            }
+                            Spacer(Modifier.height(12.dp))
+                        }
+
+                        AppTextField(value = name, onValueChange = { name = it }, label = "Name")
+                        Spacer(Modifier.height(12.dp))
+                        AppTextField(value = brand, onValueChange = { brand = it }, label = "Brand")
+
+                        Spacer(Modifier.height(24.dp))
+                        ChipGroup("Category", ClothingOptions.categories, category) { category = it }
+
+                        Spacer(Modifier.height(24.dp))
+                        ColorSwatchPicker("Color", ClothingOptions.colors, color) { color = it }
+
+                        TextButton(onClick = { showMore = !showMore }) {
+                            Text(if (showMore) "Hide details" else "More details")
+                        }
+
+                        if (showMore) {
+                            Spacer(Modifier.height(8.dp))
+                            ChipGroup("Size", ClothingOptions.sizes, size, allowClear = true) { size = it }
+                            Spacer(Modifier.height(24.dp))
+                            ChipGroup("Season", ClothingOptions.seasons, season, allowClear = true) { season = it }
+                            Spacer(Modifier.height(24.dp))
+                            ChipGroup("Occasion", ClothingOptions.occasions, occasion, allowClear = true) { occasion = it }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (showActionBar) {
+            PinnedActionBar(modifier = Modifier.align(Alignment.BottomCenter), backgroundColor = Color(0xFFF4F0EB)) {
+                if (saveFailed) {
+                    Text(
+                        "Couldn't save. Check your internet and try again.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+                PrimaryActionButton(
+                    label = "Add to closet",
+                    enabled = category.isNotBlank(),
+                    loading = isSaving,
+                    disabledLabel = "Choose a category",
+                    onClick = {
+                        isSaving = true
+                        saveFailed = false
+                        onClothingSaved(
+                            ClothingItem(
+                                id = System.currentTimeMillis().toString(),
+                                name = name.ifBlank { "New piece" },
+                                brand = brand,
+                                category = category,
+                                imageUri = shownImage,
+                                color = color,
+                                size = size,
+                                season = season,
+                                occasion = occasion,
+                                type = type
+                            )
+                        ) { success ->
+                            if (!success) {
+                                isSaving = false
+                                saveFailed = true
+                            }
+                        }
+                    }
+                )
             }
         }
     }

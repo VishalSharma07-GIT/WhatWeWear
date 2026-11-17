@@ -90,11 +90,14 @@ fun AppNavGraph() {
         }
 
         composable(NavRoutes.ForgotPassword) {
-            ForgotPasswordScreen(onEmailSent = { navController.popBackStack() })
+            ForgotPasswordScreen(
+                onEmailSent = { navController.popBackStack() },
+                onBackClick = {navController.popBackStack()})
         }
 
         composable(NavRoutes.Home) {
             MainAppScaffold(
+
                 navController = navController,
                 onAddClick = { showCamera = true }
             ) {

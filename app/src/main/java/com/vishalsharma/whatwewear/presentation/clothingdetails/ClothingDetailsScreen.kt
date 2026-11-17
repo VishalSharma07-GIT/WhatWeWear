@@ -1,7 +1,7 @@
 package com.vishalsharma.whatwewear.presentation.clothingdetails
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,21 +12,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,8 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -46,11 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
+import com.vishalsharma.whatwewear.ui.theme.AppColors
 import com.vishalsharma.whatwewear.utils.rememberImageModel
-
-private val Ivory = Color(0xFFFAF7F2)
-private val Ink = Color(0xFF211B18)
-private val Muted = Color(0xFF89827B)
 
 @Composable
 fun ClothingDetailsScreen(
@@ -73,7 +66,7 @@ fun ClothingDetailsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Ivory)
+            .background(AppColors.Background)
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
@@ -84,7 +77,7 @@ fun ClothingDetailsScreen(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",
-                tint = Ink
+                tint = AppColors.Ink
             )
         }
 
@@ -97,9 +90,10 @@ fun ClothingDetailsScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(360.dp)
+                    .height(340.dp)
                     .clip(RoundedCornerShape(28.dp))
-                    .background(Color(0xFFF2EBE4))
+                    .background(AppColors.Surface),
+                contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
                     model = rememberImageModel(clothingItem.imageUri),
@@ -107,70 +101,82 @@ fun ClothingDetailsScreen(
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
+                        .padding(18.dp)
                 )
-
-                // Edit and delete sit on the top-right corner of the photo
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    PhotoActionButton(
-                        icon = Icons.Outlined.Edit,
-                        description = "Edit",
-                        tint = Color.White,
-                        onClick = onEditClick
-                    )
-                    PhotoActionButton(
-                        icon = Icons.Outlined.Delete,
-                        description = "Delete",
-                        tint = Color(0xFFFFB4AB),
-                        onClick = { showDeleteDialog = true }
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = clothingItem.brand.ifBlank { "UNBRANDED" }.uppercase(),
-                style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 1.6.sp),
-                color = Muted
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
                 text = clothingItem.name,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 30.sp
                 ),
-                color = Ink
+                color = AppColors.Ink
             )
+            if (clothingItem.brand.isNotBlank()) {
+                Text(
+                    text = clothingItem.brand,
+                    fontSize = 18.sp,
+                    color = AppColors.Muted
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
             details.forEach { (label, value) ->
-                HorizontalDivider(color = Color(0xFFE9DED4))
+                HorizontalDivider(color = AppColors.Border)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 14.dp),
+                        .padding(vertical = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = label, color = Muted, style = MaterialTheme.typography.bodyMedium)
+                    Text(text = label, color = AppColors.Muted, fontSize = 16.sp)
                     Text(
                         text = value,
-                        color = Ink,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.bodyMedium
+                        color = AppColors.Ink,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
-            HorizontalDivider(color = Color(0xFFE9DED4))
+            HorizontalDivider(color = AppColors.Border)
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        // Edit and delete, pinned at the bottom like the mock
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedButton(
+                onClick = onEditClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(18.dp),
+                border = BorderStroke(1.5.dp, AppColors.Ink),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = AppColors.Ink)
+            ) {
+                Text("Edit", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+            }
+            TextButton(
+                onClick = { showDeleteDialog = true },
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Text(
+                    "Delete",
+                    color = AppColors.Danger,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 
@@ -183,35 +189,11 @@ fun ClothingDetailsScreen(
                 TextButton(onClick = {
                     showDeleteDialog = false
                     onDeleteClick()
-                }) { Text("Delete", color = Color(0xFFB3261E)) }
+                }) { Text("Delete", color = AppColors.Danger) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel", color = AppColors.Ink) }
             }
-        )
-    }
-}
-
-@Composable
-private fun PhotoActionButton(
-    icon: ImageVector,
-    description: String,
-    tint: Color,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .size(44.dp)
-            .clip(CircleShape)
-            .background(Color(0xCC211B18))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = description,
-            tint = tint,
-            modifier = Modifier.size(22.dp)
         )
     }
 }

@@ -30,6 +30,9 @@ import com.vishalsharma.whatwewear.ui.theme.TextSecondary
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.*
 import android.app.Activity
+import android.widget.Toast
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.credentials.CredentialManager
@@ -40,6 +43,8 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.credentials.exceptions.GetCredentialCancellationException
 
 @Composable
 fun LoginScreen(
@@ -59,17 +64,19 @@ fun LoginScreen(
 
     val scope = rememberCoroutineScope()
 
-    val credentialManager = CredentialManager.create(activity)
+    val credentialManager = remember { CredentialManager.create(activity) }
 
-    val signInWithGoogleOption =
-        GetSignInWithGoogleOption.Builder(
-            context.getString(R.string.default_web_client_id)
-        ).build()
 
-    val request =
+
+    val request = remember {
         GetCredentialRequest.Builder()
-            .addCredentialOption(signInWithGoogleOption)
+            .addCredentialOption(
+                GetSignInWithGoogleOption.Builder(
+                    context.getString(R.string.default_web_client_id)
+                ).build()
+            )
             .build()
+    }
     LaunchedEffect(uiState.loginSuccess) {
         if (uiState.loginSuccess){
             onLoginSuccess()
@@ -79,6 +86,10 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
             .padding(Dimens.PaddingLarge),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -198,14 +209,14 @@ fun LoginScreen(
                             )
                         }
 
-                    } catch (e: GoogleIdTokenParsingException) {
-
-                        e.printStackTrace()
-
+                    } catch (e: GetCredentialCancellationException) {
                     } catch (e: Exception) {
-
                         e.printStackTrace()
-
+                        Toast.makeText(
+                            context,
+                            "Google sign-in didn't work. Please try again.",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
             }

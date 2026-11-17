@@ -31,11 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.vishalsharma.whatwewear.ui.theme.AppColors
 
-private val Brown = Color(0xFF59423C)
-private val PillBackground = Color(0xFFEFE3DE)
-private val Ink = Color(0xFF211B18)
-private val Muted = Color(0xFF89827B)
+private val Brown = AppColors.Ink
+private val PillBackground = AppColors.PillFill
+private val Ink = AppColors.Ink
+private val Muted = AppColors.Muted
 
 @Composable
 fun FieldLabel(text: String) {

@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
-private val Ivory = Color(0xFFFAF7F2)
+private val Ivory = Color(0xFFF4F0EB)
 private val Ink = Color(0xFF211B18)
 private val Muted = Color(0xFF89827B)
 

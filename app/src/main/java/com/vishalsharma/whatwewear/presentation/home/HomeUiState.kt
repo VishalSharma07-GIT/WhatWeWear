@@ -2,26 +2,48 @@ package com.vishalsharma.whatwewear.presentation.home
 
 import com.vishalsharma.whatwewear.domain.model.ClothingItem
 
+data class DayCell(
+    val dateKey: String,
+    val weekday: String,
+    val dayNumber: Int,
+    val monthLabel: String,
+    val worn: Boolean,
+    val isToday: Boolean,
+    val isSelected: Boolean,
+    val isFuture: Boolean
+)
+
+// What shows under the calendar when a day other than today is selected
+data class DayDetail(
+    val dateKey: String,
+    val title: String,
+    val items: List<ClothingItem>,
+    val message: String,
+    val canRemove: Boolean,
+    val canLog: Boolean
+)
+
+data class Reminder(
+    val item: ClothingItem,
+    val message: String
+)
+
 data class HomeUiState(
+    val isLoading: Boolean = true,
+    val loadFailed: Boolean = false,
     val userName: String = "",
     val greeting: String = "",
-    val temperature: String = "",
-    val weatherDescription: String = "",
-    val recentClothes: List<ClothingItem> = emptyList(),
-    val allClothes: List<ClothingItem> = emptyList(),
-    val colorCounts: Map<String, Int> = emptyMap(),
+    val dateLine: String = "",
+    val occasions: List<String> = listOf("Casual", "Work", "Going out"),
+    val selectedOccasion: Int = 0,
+    val occasionHint: String? = null,
+    val outfit: List<ClothingItem> = emptyList(),
+    val outfitTitle: String = "",
+    val outfitColors: String = "",
+    val wornToday: Boolean = false,
     val totalClothes: Int = 0,
-    val totalTops: Int = 0,
-    val totalBottoms: Int = 0,
-    val totalShoes: Int = 0,
-    val favoriteCount: Int = 0,
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val currentLookIndex: Int = 0,
-    val currentLookTitle: String = "Casual Weekend",
-    val currentLookItems: List<ClothingItem> = emptyList(),
-    val sustainabilityScore: Int = 78,
-    val sustainabilityMessage: String =" You're making more sustainable choices",
-    val proTip: String =" Try pairing neutral colors with one statement piece"
-
+    val days: List<DayCell> = emptyList(),
+    val todayIndex: Int = 0,
+    val dayDetail: DayDetail? = null,
+    val reminder: Reminder? = null
 )

@@ -25,13 +25,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vishalsharma.whatwewear.presentation.navigation.NavRoutes
-
-private val Ivory = Color(0xFFFAF7F2)
-private val AccentBrown = Color(0xFFB8906D)
-private val MutedBrown = Color(0xFF89827B)
+import com.vishalsharma.whatwewear.ui.theme.AppColors
 
 @Composable
 fun BottomNavigationBar(
@@ -42,9 +40,9 @@ fun BottomNavigationBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Ivory)
+            .background(AppColors.Background)
             .navigationBarsPadding()
-            .height(72.dp),
+            .height(76.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         NavItem(
@@ -55,15 +53,7 @@ fun BottomNavigationBar(
             modifier = Modifier.weight(1f)
         )
 
-        NavItem(
-            label = "Closet",
-            icon = Icons.Outlined.Checkroom,
-            selected = currentRoute == NavRoutes.Wardrobe,
-            onClick = { onItemClick(NavRoutes.Wardrobe) },
-            modifier = Modifier.weight(1f)
-        )
-
-        // Add button, in the third slot
+        // Add button, in the middle
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -72,10 +62,10 @@ fun BottomNavigationBar(
         ) {
             Box(
                 modifier = Modifier
-                    .size(52.dp)
-                    .shadow(6.dp, CircleShape)
+                    .size(56.dp)
+                    .shadow(8.dp, CircleShape)
                     .clip(CircleShape)
-                    .background(AccentBrown)
+                    .background(AppColors.Ink)
                     .clickable(onClick = onAddClick),
                 contentAlignment = Alignment.Center
             ) {
@@ -87,6 +77,14 @@ fun BottomNavigationBar(
                 )
             }
         }
+
+        NavItem(
+            label = "Closet",
+            icon = Icons.Outlined.Checkroom,
+            selected = currentRoute == NavRoutes.Wardrobe,
+            onClick = { onItemClick(NavRoutes.Wardrobe) },
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -98,7 +96,7 @@ private fun NavItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val color = if (selected) AccentBrown else MutedBrown
+    val color = if (selected) AppColors.Ink else AppColors.Muted
     Column(
         modifier = modifier
             .fillMaxHeight()
@@ -107,6 +105,12 @@ private fun NavItem(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(imageVector = icon, contentDescription = label, tint = color)
-        Text(text = label, fontSize = 11.sp, color = color, maxLines = 1)
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+            color = color,
+            maxLines = 1
+        )
     }
 }
